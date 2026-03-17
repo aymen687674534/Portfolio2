@@ -1893,7 +1893,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 
 /* ============================================
-  GLITCH / HACKING SIMULATION (INSANE MODE)
+  GLITCH / TENTATIVE D'INTRUSION (LIVE MODE)
   ============================================ */
 
 /* --- Base overlay --- */
@@ -1961,6 +1961,64 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   animation: sdProgressShimmer 1s linear infinite;
   transition: width 1s linear;
   width:0%;
+}
+.sd-interactive-hud {
+  margin-top: 22px;
+  width: min(560px, 90vw);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(7, 8, 20, 0.72);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+}
+.sd-hud-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+.sd-hud-kpi {
+  color: #ffd54f;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.sd-hud-hint {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.75rem;
+}
+.sd-contain-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  color: #060918;
+  background: linear-gradient(135deg, #00e676, #b2ff59);
+  transition: transform 0.14s, box-shadow 0.2s;
+}
+.sd-contain-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0,230,118,0.45);
+}
+.sd-contain-meter {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.12);
+}
+.sd-contain-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00e676, #00d4ff, #ffea00);
+  transition: width 0.2s ease;
 }
 @keyframes sdPulseWarn {
   from { transform:scale(1); filter:brightness(1); }
@@ -2802,7 +2860,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     <button class="taskbar-btn" onclick="openWindow('synthese')" title="Synthèse E4">📊</button>
     <button class="taskbar-btn" onclick="openWindow('veille')" title="Veille">📡</button>
     <button class="taskbar-btn" onclick="openWindow('attestations')" title="Attestations">📜</button>
-    <button class="taskbar-btn" onclick="triggerHackSimulation()" title="Simulation hacking" style="color:var(--accent-green);">🧠</button>
+    <button class="taskbar-btn" onclick="triggerIntrusionShowcase()" title="Tentative d'intrusion" style="color:var(--accent-green);">🧠</button>
   </div>
   <div class="taskbar-right">
     <div class="taskbar-tray">
@@ -2867,9 +2925,9 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
       <div class="start-app-icon">📜</div>
       <div class="start-app-label">Attestations</div>
     </div>
-    <div class="start-app" onclick="triggerHackSimulation(); toggleStartMenu();">
+    <div class="start-app" onclick="triggerIntrusionShowcase(); toggleStartMenu();">
       <div class="start-app-icon">🧠</div>
-      <div class="start-app-label">Simulation Hacking</div>
+      <div class="start-app-label">Tentative d'intrusion</div>
     </div>
   </div>
   <div class="start-user">
@@ -2916,10 +2974,21 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 <div class="sd-overlay" id="sdOverlay"></div>
 <div class="sd-warning" id="sdWarning">
   <div class="sd-warning-icon">🧠</div>
-  <div class="sd-warning-title">⚠ SIMULATION D'INTRUSION ⚠</div>
-  <div class="sd-warning-sub">PROTOCOLE RED_TEAM_SIM.exe EN COURS...</div>
+  <div class="sd-warning-title">⚠ TENTATIVE D'INTRUSION ⚠</div>
+  <div class="sd-warning-sub">PROTOCOLE INCIDENT_RESPONSE.exe EN COURS...</div>
   <div class="sd-countdown" id="sdCountdown">3</div>
   <div class="sd-progress-bar"><div class="sd-progress-fill" id="sdProgress"></div></div>
+  <div class="sd-interactive-hud" id="sdInteractiveHud">
+    <div class="sd-hud-row">
+      <div class="sd-hud-kpi">Niveau menace: <span id="sdThreatLevel">99%</span></div>
+      <div class="sd-hud-kpi">Score défense: <span id="sdDefenseScore">0</span></div>
+    </div>
+    <div class="sd-hud-row">
+      <button class="sd-contain-btn" id="sdContainBtn" type="button">ACTIVER CONTRE-MESURE</button>
+      <div class="sd-hud-hint">Clique, Espace ou Entrée pour monter le score en direct.</div>
+    </div>
+    <div class="sd-contain-meter"><div class="sd-contain-meter-fill" id="sdContainMeterFill"></div></div>
+  </div>
 </div>
 <div class="sd-glitch-layer" id="sdGlitchLayer">
   <div class="sd-scanlines"></div>
@@ -2934,12 +3003,12 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 <div class="sd-blackhole" id="sdBlackhole"></div>
 <div class="sd-bsod" id="sdBsod">
   <div class="sd-bsod-sad">:(</div>
-  <div class="sd-bsod-title">Security simulation reached a critical state and needs to restart.</div>
+  <div class="sd-bsod-title">Incident response kernel reached a critical state and needs to restart.</div>
   <div class="sd-bsod-text">
-    Collecting diagnostic traces before sandbox reboot.<br><br>
+    Collecting forensic traces before secure reboot.<br><br>
     If you'd like to know more, you can search later for this error:<br>
-    Stop code: REDTEAM_SIM_TIMEOUT<br>
-    What failed: portfolio_security_sim.sys
+    Stop code: IR_KERNEL_OVERLOAD<br>
+    What failed: portfolio_incident_response.sys
   </div>
   <div class="sd-bsod-percent" id="sdBsodPercent"><span class="sd-bsod-spinner"></span>0% complete</div>
 </div>
@@ -5492,11 +5561,15 @@ function escapeHtml(str) {
 }
 
 // ============================
-// HACKING SIMULATION — INSANE MODE
+// TENTATIVE D'INTRUSION — LIVE MODE
 // ============================
-function triggerHackSimulation() {
+function triggerIntrusionShowcase() {
   if (state.selfDestructActive) return;
   state.selfDestructActive = true;
+
+  let defenseScore = 0;
+  let threatLevel = 99;
+  let counterActions = 0;
 
   // Audio context for alarm/explosion sounds
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -5567,6 +5640,10 @@ function triggerHackSimulation() {
   const warning = document.getElementById('sdWarning');
   const countdown = document.getElementById('sdCountdown');
   const progress = document.getElementById('sdProgress');
+  const defenseScoreEl = document.getElementById('sdDefenseScore');
+  const threatLevelEl = document.getElementById('sdThreatLevel');
+  const containBtn = document.getElementById('sdContainBtn');
+  const containMeterFill = document.getElementById('sdContainMeterFill');
   const glitchLayer = document.getElementById('sdGlitchLayer');
   const glitchText = document.getElementById('sdGlitchText');
   const matrixCanvas = document.getElementById('sdMatrixCanvas');
@@ -5578,6 +5655,31 @@ function triggerHackSimulation() {
   const reboot = document.getElementById('sdReboot');
   const rebootText = document.getElementById('sdRebootText');
   const flash = document.getElementById('sdFlash');
+
+  function updateDefenseHud() {
+    defenseScoreEl.textContent = String(defenseScore);
+    threatLevelEl.textContent = `${Math.max(5, threatLevel)}%`;
+    containMeterFill.style.width = `${Math.min(100, defenseScore)}%`;
+  }
+
+  function registerCounterAction() {
+    if (!state.selfDestructActive) return;
+    counterActions++;
+    defenseScore = Math.min(100, defenseScore + (counterActions % 5 === 0 ? 3 : 2));
+    threatLevel = Math.max(5, threatLevel - 1);
+    updateDefenseHud();
+  }
+
+  function onCounterKeydown(event) {
+    if (event.code === 'Space' || event.code === 'Enter') {
+      event.preventDefault();
+      registerCounterAction();
+    }
+  }
+
+  containBtn.onclick = registerCounterAction;
+  document.addEventListener('keydown', onCounterKeydown);
+  updateDefenseHud();
 
   // === MATRIX RAIN ===
   const mCtx = matrixCanvas.getContext('2d');
@@ -5688,8 +5790,8 @@ function triggerHackSimulation() {
     const glitchMessages = [
       'INTRUSION DETECTED', 'FIREWALL BYPASS ATTEMPT', 'PACKET STORM',
       'PRIVILEGE ESCALATION', 'TOKEN FORGERY', 'DNS SPOOFING CHECK',
-      'SOC ALERT LEVEL MAX', 'ZERO-DAY EMULATION', 'ROOT SHELL SIMULATED',
-      '0x00000SEC', 'RED TEAM EXERCISE'
+      'SOC ALERT LEVEL MAX', 'ZERO-DAY DETECTED', 'ROOT SHELL ATTEMPT',
+      '0x00000SEC', 'BLUE TEAM RESPONSE ONLINE'
     ];
     let msgIdx = 0;
     glitchText.classList.add('active');
@@ -5715,13 +5817,13 @@ function triggerHackSimulation() {
       `;
       const msgs = [
         '🚨 SIEM ALERT: Suspicious lateral movement detected',
-        '🛡️ EDR NOTICE: Unknown payload quarantined (simulation)',
+        '🛡️ EDR NOTICE: Unknown payload quarantined',
         '🔐 MFA BYPASS ATTEMPT blocked by policy engine',
         '📡 SOC FEED: Brute-force wave from 45 countries',
-        '🧪 Sandbox executing controlled exploit chain',
+        '🧪 Sandbox executing exploit chain analysis',
         '🕵️ Threat intel match: IOC cluster "NightSignal"',
         '📈 NetFlow anomaly: East-West traffic spike',
-        '✅ Drill status: no real system impacted'
+        '✅ Incident response: segmentation policy applied'
       ];
       popup.textContent = msgs[Math.floor(Math.random() * msgs.length)];
       document.body.appendChild(popup);
@@ -5735,9 +5837,17 @@ function triggerHackSimulation() {
       startFire(25);
       document.body.classList.remove('sd-shaking');
       document.body.classList.add('sd-shaking-hard');
-      glitchText.textContent = '🛡️ ROOT ACCESS (SIMULATED)';
+      if (defenseScore >= 70) {
+        glitchText.textContent = '🛡️ ATTAQUE CONTENUE - SOC DOMINANT';
+        glitchText.style.color = '#00e676';
+      } else if (defenseScore >= 35) {
+        glitchText.textContent = '⚔️ BRECHE PARTIELLE - REMEDIATION ACTIVE';
+        glitchText.style.color = '#ffea00';
+      } else {
+        glitchText.textContent = '☠️ BRECHE CRITIQUE - ESCALADE EN COURS';
+        glitchText.style.color = '#ff1744';
+      }
       glitchText.style.fontSize = 'clamp(2rem,7vw,5rem)';
-      glitchText.style.color = '#ff1744';
     }, 2000);
 
     // === PHASE 4: BLACK HOLE (7s) ===
@@ -5813,7 +5923,7 @@ function triggerHackSimulation() {
                       '',
                       '  ██████████████████████████ 100%',
                       '',
-                      'Simulation completed successfully.',
+                      'Tentative d\'intrusion neutralisee.',
                       'Welcome back, Analyst. 🚀',
                     ];
                     let lineIdx = 0;
@@ -5861,8 +5971,12 @@ function triggerHackSimulation() {
                           // Clear matrix canvas
                           mCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
 
+                          // Remove interactive listeners
+                          document.removeEventListener('keydown', onCounterKeydown);
+                          containBtn.onclick = null;
+
                           state.selfDestructActive = false;
-                          showNotification('🛡️ Simulation terminée', 'Exercice de cybersécurité complété. Aucun fichier réel n\'a été modifié.');
+                          showNotification('🛡️ Tentative stoppee', `Score defense ${defenseScore}/100. Contre-mesures executees: ${counterActions}.`);
                           actx.close();
                         }, 2500);
                       }
@@ -5878,8 +5992,12 @@ function triggerHackSimulation() {
   }, 3000);
 }
 
+function triggerHackSimulation() {
+  triggerIntrusionShowcase();
+}
+
 function triggerSelfDestruct() {
-  triggerHackSimulation();
+  triggerIntrusionShowcase();
 }
 
 // ============================
