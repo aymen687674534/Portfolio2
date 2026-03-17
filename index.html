@@ -1893,8 +1893,8 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 
 /* ============================================
-   GLITCH / AUTODESTRUCTION (INSANE MODE)
-   ============================================ */
+  GLITCH / HACKING SIMULATION (INSANE MODE)
+  ============================================ */
 
 /* --- Base overlay --- */
 .sd-overlay {
@@ -2802,7 +2802,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     <button class="taskbar-btn" onclick="openWindow('synthese')" title="Synthèse E4">📊</button>
     <button class="taskbar-btn" onclick="openWindow('veille')" title="Veille">📡</button>
     <button class="taskbar-btn" onclick="openWindow('attestations')" title="Attestations">📜</button>
-    <button class="taskbar-btn" onclick="triggerSelfDestruct()" title="Autodestruction" style="color:var(--accent-red);">☢️</button>
+    <button class="taskbar-btn" onclick="triggerHackSimulation()" title="Simulation hacking" style="color:var(--accent-green);">🧠</button>
   </div>
   <div class="taskbar-right">
     <div class="taskbar-tray">
@@ -2867,9 +2867,9 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
       <div class="start-app-icon">📜</div>
       <div class="start-app-label">Attestations</div>
     </div>
-    <div class="start-app" onclick="triggerSelfDestruct(); toggleStartMenu();">
-      <div class="start-app-icon">☢️</div>
-      <div class="start-app-label">Autodestruction</div>
+    <div class="start-app" onclick="triggerHackSimulation(); toggleStartMenu();">
+      <div class="start-app-icon">🧠</div>
+      <div class="start-app-label">Simulation Hacking</div>
     </div>
   </div>
   <div class="start-user">
@@ -2915,9 +2915,9 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 <!-- ========== SELF-DESTRUCT SYSTEM ========== -->
 <div class="sd-overlay" id="sdOverlay"></div>
 <div class="sd-warning" id="sdWarning">
-  <div class="sd-warning-icon">☢️</div>
-  <div class="sd-warning-title">⚠ AUTODESTRUCTION INITIÉE ⚠</div>
-  <div class="sd-warning-sub">PROTOCOLE NUCLEAR_PURGE.exe EN COURS...</div>
+  <div class="sd-warning-icon">🧠</div>
+  <div class="sd-warning-title">⚠ SIMULATION D'INTRUSION ⚠</div>
+  <div class="sd-warning-sub">PROTOCOLE RED_TEAM_SIM.exe EN COURS...</div>
   <div class="sd-countdown" id="sdCountdown">3</div>
   <div class="sd-progress-bar"><div class="sd-progress-fill" id="sdProgress"></div></div>
 </div>
@@ -2934,12 +2934,12 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 <div class="sd-blackhole" id="sdBlackhole"></div>
 <div class="sd-bsod" id="sdBsod">
   <div class="sd-bsod-sad">:(</div>
-  <div class="sd-bsod-title">Your portfolio ran into a problem and needs to restart.</div>
+  <div class="sd-bsod-title">Security simulation reached a critical state and needs to restart.</div>
   <div class="sd-bsod-text">
-    We're just collecting some error info, and then we'll restart for you.<br><br>
+    Collecting diagnostic traces before sandbox reboot.<br><br>
     If you'd like to know more, you can search later for this error:<br>
-    Stop code: PORTFOLIO_NUCLEAR_MELTDOWN<br>
-    What failed: aymen_portfolio.sys
+    Stop code: REDTEAM_SIM_TIMEOUT<br>
+    What failed: portfolio_security_sim.sys
   </div>
   <div class="sd-bsod-percent" id="sdBsodPercent"><span class="sd-bsod-spinner"></span>0% complete</div>
 </div>
@@ -4181,13 +4181,35 @@ function openDocumentViewer(fileItem) {
 }
 
 function openDocumentInNewTab(url, name = '') {
-  const a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  let absoluteUrl;
+  try {
+    absoluteUrl = new URL(url, window.location.href).href;
+  } catch {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  const tab = window.open('about:blank', '_blank', 'noopener,noreferrer');
+  if (!tab) {
+    showNotification('⚠️ Pop-up bloquée', 'Autorise les pop-ups pour ouvrir le document dans un nouvel onglet.');
+    return;
+  }
+  tab.document.write('<!DOCTYPE html><title>Chargement...</title><p style="font-family:Segoe UI,Arial,sans-serif;padding:16px;">Chargement du document...</p>');
+  tab.document.close();
+
+  fetch(absoluteUrl)
+    .then(res => {
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.blob();
+    })
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob);
+      tab.location.href = blobUrl;
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 20000);
+    })
+    .catch(() => {
+      tab.location.href = absoluteUrl;
+    });
 }
 
 let jsZipPromise = null;
@@ -5487,9 +5509,9 @@ function escapeHtml(str) {
 }
 
 // ============================
-// AUTODESTRUCTION — INSANE MODE
+// HACKING SIMULATION — INSANE MODE
 // ============================
-function triggerSelfDestruct() {
+function triggerHackSimulation() {
   if (state.selfDestructActive) return;
   state.selfDestructActive = true;
 
@@ -5681,10 +5703,10 @@ function triggerSelfDestruct() {
 
     // Glitch text cycle
     const glitchMessages = [
-      'SYSTEM FAILURE', 'CORRUPTION DETECTED', 'DELETING C:\\\\*.*',
-      'KERNEL PANIC', 'MEMORY OVERFLOW', 'FORMAT DISK...',
-      '💀 GOODBYE 💀', 'rm -rf / --no-preserve-root', 'ERR: BRAIN NOT FOUND',
-      '0x000000DEAD', 'NUCLEAR MELTDOWN'
+      'INTRUSION DETECTED', 'FIREWALL BYPASS ATTEMPT', 'PACKET STORM',
+      'PRIVILEGE ESCALATION', 'TOKEN FORGERY', 'DNS SPOOFING CHECK',
+      'SOC ALERT LEVEL MAX', 'ZERO-DAY EMULATION', 'ROOT SHELL SIMULATED',
+      '0x00000SEC', 'RED TEAM EXERCISE'
     ];
     let msgIdx = 0;
     glitchText.classList.add('active');
@@ -5709,14 +5731,14 @@ function triggerSelfDestruct() {
         pointer-events:none;
       `;
       const msgs = [
-        '❌ FATAL ERROR: portfolio.exe has stopped working',
-        '⚠️ WARNING: Temperature critical 9999°C',
-        '💀 ERROR 0xDEADBEEF: Reality not found',
-        '🔥 DISK ON FIRE — Please do not panic',
-        '☠️ CRITICAL: All data will be erased',
-        '🚨 BREACH DETECTED: Firewall destroyed',
-        '💣 DETONATION SEQUENCE LOCKED',
-        '⛔ ACCESS DENIED: You cannot stop this'
+        '🚨 SIEM ALERT: Suspicious lateral movement detected',
+        '🛡️ EDR NOTICE: Unknown payload quarantined (simulation)',
+        '🔐 MFA BYPASS ATTEMPT blocked by policy engine',
+        '📡 SOC FEED: Brute-force wave from 45 countries',
+        '🧪 Sandbox executing controlled exploit chain',
+        '🕵️ Threat intel match: IOC cluster "NightSignal"',
+        '📈 NetFlow anomaly: East-West traffic spike',
+        '✅ Drill status: no real system impacted'
       ];
       popup.textContent = msgs[Math.floor(Math.random() * msgs.length)];
       document.body.appendChild(popup);
@@ -5730,7 +5752,7 @@ function triggerSelfDestruct() {
       startFire(25);
       document.body.classList.remove('sd-shaking');
       document.body.classList.add('sd-shaking-hard');
-      glitchText.textContent = '💀 POINT OF NO RETURN 💀';
+      glitchText.textContent = '🛡️ ROOT ACCESS (SIMULATED)';
       glitchText.style.fontSize = 'clamp(2rem,7vw,5rem)';
       glitchText.style.color = '#ff1744';
     }, 2000);
@@ -5800,16 +5822,16 @@ function triggerSelfDestruct() {
                       '  > SSD: 1TB Achievement Drive ✓',
                       '  > NETWORK: Ethernet Konvergence ✓',
                       '',
-                      'Loading kernel... aymen_portfolio.sys',
-                      'Mounting /dev/creativity... OK',
+                      'Loading security kernel... portfolio_guard.sys',
+                      'Mounting /dev/sandbox... OK',
                       'Initializing talent.dll... OK',
-                      'Loading motivation.service... [MAXIMUM]',
-                      'Restoring desktop environment...',
+                      'Loading defense.service... [MAXIMUM]',
+                      'Restoring desktop environment after drill...',
                       '',
                       '  ██████████████████████████ 100%',
                       '',
-                      'System restored successfully.',
-                      'Welcome back. 🚀',
+                      'Simulation completed successfully.',
+                      'Welcome back, Analyst. 🚀',
                     ];
                     let lineIdx = 0;
                     const typeIv = setInterval(() => {
@@ -5857,7 +5879,7 @@ function triggerSelfDestruct() {
                           mCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
 
                           state.selfDestructActive = false;
-                          showNotification('🚀 Système restauré', 'Autodestruction annulée. Le portfolio est intact... cette fois.');
+                          showNotification('🛡️ Simulation terminée', 'Exercice de cybersécurité complété. Aucun fichier réel n\'a été modifié.');
                           actx.close();
                         }, 2500);
                       }
@@ -5871,6 +5893,10 @@ function triggerSelfDestruct() {
       }, 1500);
     }, 4000);
   }, 3000);
+}
+
+function triggerSelfDestruct() {
+  triggerHackSimulation();
 }
 
 // ============================
