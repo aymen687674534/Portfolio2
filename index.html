@@ -4183,6 +4183,7 @@ function openDocumentViewer(fileItem) {
 function openDocumentInNewTab(url, name = '') {
   const absoluteUrl = new URL(url, window.location.href).href;
   const ext = (name.split('.').pop() || '').toLowerCase();
+  const isOdt = ext === 'odt';
   const isOfficeLike = ['odt', 'doc', 'docx'].includes(ext);
 
   const openWithAnchor = (targetUrl) => {
@@ -4206,6 +4207,23 @@ function openDocumentInNewTab(url, name = '') {
       return false;
     }
   })();
+
+  if (isOdt) {
+    const tab = window.open('', '_blank');
+    if (!tab) {
+      showNotification('⚠️ Pop-up bloquée', 'Autorisez les pop-ups pour ouvrir le document dans un nouvel onglet.');
+      return;
+    }
+
+    tab.document.title = name || 'Prévisualisation ODT';
+    tab.document.body.innerHTML = '<p style="font-family:Arial,sans-serif;padding:16px;">Chargement du document...</p>';
+
+    renderOdtInTab(absoluteUrl, name || 'Document', tab)
+      .catch(() => {
+        tab.location.href = absoluteUrl;
+      });
+    return;
+  }
 
   if (isOfficeLike) {
     if (isPublicHttp) {
@@ -4246,67 +4264,106 @@ function escapeHtml(text) {
     .replace(/'/g, '&#39;');
 }
 
+function detectMimeType(path) {
+  const ext = (path.split('.').pop() || '').toLowerCase();
+  const mimes = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    svg: 'image/svg+xml'
+  };
+  return mimes[ext] || 'application/octet-stream';
+}
+
+async function extractOdtPreviewContent(fileUrl) {
+  await ensureJsZip();
+  const response = await fetch(fileUrl);
+  if (!response.ok) throw new Error('Téléchargement du fichier impossible');
+
+  const buffer = await response.arrayBuffer();
+  const zip = await window.JSZip.loadAsync(buffer);
+  const contentFile = zip.file('content.xml');
+  if (!contentFile) throw new Error('Structure ODT invalide');
+
+  const xml = await contentFile.async('string');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'application/xml');
+  const paragraphNodes = Array.from(doc.getElementsByTagNameNS('*', 'p'));
+  const headingNodes = Array.from(doc.getElementsByTagNameNS('*', 'h'));
+  const listNodes = Array.from(doc.getElementsByTagNameNS('*', 'list-item'));
+
+  const lines = [...headingNodes, ...paragraphNodes, ...listNodes]
+    .map(node => (node.textContent || '').replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+
+  const imageNodes = Array.from(doc.getElementsByTagNameNS('*', 'image'));
+  const imageRefs = [...new Set(
+    imageNodes
+      .map(node => node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || node.getAttribute('xlink:href') || '')
+      .filter(Boolean)
+      .map(ref => ref.replace(/^\.?\//, ''))
+  )];
+
+  const imageHtmlParts = [];
+  for (const imgRef of imageRefs) {
+    const imageFile = zip.file(imgRef);
+    if (!imageFile) continue;
+    const base64 = await imageFile.async('base64');
+    const mime = detectMimeType(imgRef);
+    imageHtmlParts.push(`<figure class="odt-preview-figure"><img src="data:${mime};base64,${base64}" alt="Illustration du document"></figure>`);
+  }
+
+  return {
+    textHtml: lines.map(line => `<p>${escapeHtml(line)}</p>`).join(''),
+    imageHtml: imageHtmlParts.join(''),
+    hasContent: lines.length > 0 || imageHtmlParts.length > 0
+  };
+}
+
+async function renderOdtInTab(fileUrl, fileName, tab) {
+  const preview = await extractOdtPreviewContent(fileUrl);
+  const contentHtml = preview.hasContent
+    ? `${preview.textHtml}${preview.imageHtml}`
+    : '<p style="color:#666;">Aucun contenu texte ou image lisible trouvé dans ce document.</p>';
+
+  tab.document.title = fileName;
+  tab.document.documentElement.innerHTML = `
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${escapeHtml(fileName)}</title>
+      <style>
+        body { margin: 0; padding: 24px; font-family: Segoe UI, Arial, sans-serif; background: #f3f4f6; color: #111827; }
+        .wrap { max-width: 980px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 22px; }
+        h1 { font-size: 18px; margin: 0 0 14px 0; color: #111827; }
+        .content p { margin: 0 0 10px 0; line-height: 1.6; }
+        .odt-preview-figure { margin: 0 0 12px 0; }
+        .odt-preview-figure img { max-width: 100%; height: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <h1>${escapeHtml(fileName)}</h1>
+        <div class="content">${contentHtml}</div>
+      </div>
+    </body>
+  `;
+}
+
 async function renderOdtPreview(fileUrl, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const detectMimeType = (path) => {
-    const ext = (path.split('.').pop() || '').toLowerCase();
-    const mimes = {
-      png: 'image/png',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      gif: 'image/gif',
-      webp: 'image/webp',
-      svg: 'image/svg+xml'
-    };
-    return mimes[ext] || 'application/octet-stream';
-  };
-
   try {
-    await ensureJsZip();
-    const response = await fetch(fileUrl);
-    if (!response.ok) throw new Error('Téléchargement du fichier impossible');
-    const buffer = await response.arrayBuffer();
-    const zip = await window.JSZip.loadAsync(buffer);
-    const contentFile = zip.file('content.xml');
-    if (!contentFile) throw new Error('Structure ODT invalide');
-
-    const xml = await contentFile.async('string');
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xml, 'application/xml');
-    const paragraphNodes = Array.from(doc.getElementsByTagNameNS('*', 'p'));
-    const headingNodes = Array.from(doc.getElementsByTagNameNS('*', 'h'));
-    const listNodes = Array.from(doc.getElementsByTagNameNS('*', 'list-item'));
-
-    const lines = [...headingNodes, ...paragraphNodes, ...listNodes]
-      .map(node => (node.textContent || '').replace(/\s+/g, ' ').trim())
-      .filter(Boolean);
-
-    const imageNodes = Array.from(doc.getElementsByTagNameNS('*', 'image'));
-    const imageRefs = [...new Set(
-      imageNodes
-        .map(node => node.getAttributeNS('http://www.w3.org/1999/xlink', 'href') || node.getAttribute('xlink:href') || '')
-        .filter(Boolean)
-        .map(ref => ref.replace(/^\.?\//, ''))
-    )];
-
-    const imageHtmlParts = [];
-    for (const imgRef of imageRefs) {
-      const imageFile = zip.file(imgRef);
-      if (!imageFile) continue;
-      const base64 = await imageFile.async('base64');
-      const mime = detectMimeType(imgRef);
-      imageHtmlParts.push(`<figure class="odt-preview-figure"><img src="data:${mime};base64,${base64}" alt="Illustration du document"></figure>`);
-    }
-
-    if (!lines.length && !imageHtmlParts.length) {
+    const preview = await extractOdtPreviewContent(fileUrl);
+    if (!preview.hasContent) {
       container.innerHTML = `<div class="odt-preview-error">Aucun contenu texte ou image lisible trouvé dans ce document.</div>`;
       return;
     }
 
-    const textHtml = lines.map(line => `<p>${escapeHtml(line)}</p>`).join('');
-    container.innerHTML = `<div class="odt-preview-doc">${textHtml}${imageHtmlParts.join('')}</div>`;
+    container.innerHTML = `<div class="odt-preview-doc">${preview.textHtml}${preview.imageHtml}</div>`;
   } catch (error) {
     container.innerHTML = `<div class="odt-preview-error">Aperçu indisponible pour ce document.<br>Utilisez <strong>Nouvel onglet</strong> ou <strong>Télécharger</strong>.</div>`;
     showNotification('⚠️ Prévisualisation', 'Impossible d’afficher ce fichier en aperçu intégré.');
