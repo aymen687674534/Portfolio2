@@ -4181,75 +4181,13 @@ function openDocumentViewer(fileItem) {
 }
 
 function openDocumentInNewTab(url, name = '') {
-  let absoluteUrl;
-  try {
-    absoluteUrl = new URL(url, window.location.href).href;
-  } catch {
-    window.open(url, '_blank');
-    return;
-  }
-  const ext = (name.split('.').pop() || '').toLowerCase();
-  const isOdt = ext === 'odt';
-  const isOfficeLike = ['odt', 'doc', 'docx'].includes(ext);
-
-  const openWithAnchor = (targetUrl) => {
-    const a = document.createElement('a');
-    a.href = targetUrl;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const isPublicHttp = (() => {
-    try {
-      const parsed = new URL(absoluteUrl);
-      const host = parsed.hostname.toLowerCase();
-      const isHttp = parsed.protocol === 'http:' || parsed.protocol === 'https:';
-      const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local');
-      return isHttp && !isLocal;
-    } catch {
-      return false;
-    }
-  })();
-
-  if (isOdt) {
-    const tab = window.open('', '_blank');
-    if (!tab) {
-      // Fallback: tentative d'ouverture directe si le blank tab est bloqué.
-      window.open(absoluteUrl, '_blank');
-      return;
-    }
-
-    tab.document.open();
-    tab.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Chargement...</title></head><body><p style="font-family:Arial,sans-serif;padding:16px;">Chargement du document...</p></body></html>');
-    tab.document.close();
-
-    renderOdtInTab(absoluteUrl, name || 'Document', tab)
-      .catch(() => {
-        try {
-          tab.location.href = absoluteUrl;
-        } catch {
-          window.open(absoluteUrl, '_blank');
-        }
-      });
-    return;
-  }
-
-  if (isOfficeLike) {
-    if (isPublicHttp) {
-      const googleViewerUrl = `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(absoluteUrl)}`;
-      openWithAnchor(googleViewerUrl);
-      return;
-    }
-
-    // En preview locale, Google Viewer ne peut pas accéder au fichier: on ouvre le fichier directement.
-    openWithAnchor(absoluteUrl);
-    return;
-  }
-
-  openWithAnchor(absoluteUrl);
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 let jsZipPromise = null;
