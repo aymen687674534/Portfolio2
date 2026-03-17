@@ -4387,15 +4387,33 @@ async function renderOdtPreview(fileUrl, containerId) {
 }
 
 function downloadDoc(url, name) {
-  const a = document.createElement('a');
-  a.href = url;
-  const fallbackName = (url.split('/').pop() || 'document').split('?')[0];
-  a.download = name || fallbackName;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showNotification('📄 Téléchargement', `Téléchargement de ${name}...`);
+  const fallbackName = decodeURIComponent((url.split('/').pop() || 'document').split('?')[0]);
+  const fileName = name || fallbackName;
+  showNotification('📄 Téléchargement', `Téléchargement de ${fileName}…`);
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.blob();
+    })
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    })
+    .catch(() => {
+      // Fallback direct si fetch échoue (ex: fichier non servi)
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
 }
 
 // ============================
@@ -4941,14 +4959,31 @@ function closeSentOverlay() {
 // ============================
 function downloadCV() {
   const cvUrl = 'CV_2026-02-18_Aymen_LOURAGHI.pdf';
-  const a = document.createElement('a');
-  a.href = cvUrl;
-  a.download = 'CV_Aymen_Louraghi.pdf';
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showNotification('📄 Téléchargement', 'Téléchargement du CV en cours...');
+  const fileName = 'CV_Aymen_Louraghi.pdf';
+  showNotification('📄 Téléchargement', 'Téléchargement du CV en cours…');
+  fetch(cvUrl)
+    .then(res => {
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.blob();
+    })
+    .then(blob => {
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    })
+    .catch(() => {
+      const a = document.createElement('a');
+      a.href = cvUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
 }
 
 // ============================
