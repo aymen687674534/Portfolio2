@@ -4632,6 +4632,16 @@ let scolariteCurrentPath = 'root';
 function initScolarite() {
   buildScolariteTree();
   navigateScolarite('root');
+
+  const grid = document.getElementById('scolariteGrid');
+  if (grid) {
+    grid.addEventListener('click', e => {
+      // Clic dans une zone vide de la grille => retour à l'état de départ
+      if (!e.target.closest('.scolaire-item')) {
+        resetScolariteDetailView();
+      }
+    });
+  }
 }
 
 function buildScolariteTree() {
@@ -4747,8 +4757,31 @@ function navigateScolarite(nodeId) {
   if (locEl) locEl.textContent = node.name;
 
   // Close detail panel
+  resetScolariteDetailView();
+}
+
+function resetScolariteDetailView() {
+  document.querySelectorAll('.scolaire-item').forEach(i => i.classList.remove('selected'));
+
   const detail = document.getElementById('scolariteDetail');
   if (detail) detail.classList.remove('open');
+
+  const iconEl = document.getElementById('scoDetailIcon');
+  const titleEl = document.getElementById('scoDetailTitle');
+  const metaEl = document.getElementById('scoDetailMeta');
+  const descEl = document.getElementById('scoDetailDesc');
+  const tagsEl = document.getElementById('scoDetailTags');
+  const openBtn = document.getElementById('scoOpenBtn');
+
+  if (iconEl) iconEl.textContent = '📄';
+  if (titleEl) titleEl.textContent = 'Sélectionnez un fichier';
+  if (metaEl) metaEl.innerHTML = '<span>—</span>';
+  if (descEl) descEl.textContent = 'Cliquez sur un fichier pour voir ses détails.';
+  if (tagsEl) tagsEl.innerHTML = '';
+  if (openBtn) {
+    openBtn.style.display = 'none';
+    delete openBtn.dataset.fileId;
+  }
 }
 
 function onScolariteItemClick(evt, itemId) {
