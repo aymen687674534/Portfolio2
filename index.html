@@ -2927,6 +2927,11 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   transition: background 0.15s;
 }
 .context-menu-item:hover { background: rgba(0,212,255,0.1); }
+.context-menu-item.disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
 .context-menu-separator {
   height:1px;
   background: var(--border);
@@ -3465,6 +3470,8 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   <div class="context-menu-item" role="menuitem" onclick="location.reload()">🔄  Actualiser</div>
 </div>
 
+<div class="context-menu" id="smartContextMenu" role="menu" aria-label="Menu contextuel"></div>
+
 <!-- ========== SELF-DESTRUCT SYSTEM ========== -->
 <div class="sd-overlay" id="sdOverlay"></div>
 <div class="sd-warning" id="sdWarning">
@@ -3573,6 +3580,7 @@ const state = {
   muted: false,
   connectedNetwork: null,
   openFlyout: null,
+  contextActions: [],
   terminalHistory: [],
   terminalHistoryIndex: -1,
   notifTimer: null,
@@ -3994,10 +4002,234 @@ createParticles();
 // ============================
 // CONTEXT MENU
 // ============================
+function getWindowIdFromTaskbarTitle(title) {
+  const map = {
+    'Accueil': 'accueil',
+    'À Propos': 'apropos',
+    'Réalisations': 'realisations',
+    'Projets': 'projets',
+    'Contact': 'contact',
+    'Terminal': 'terminal',
+    'Scolarité': 'scolarite',
+    'CV': 'cv',
+    'Synthèse E4': 'synthese',
+    'Veille': 'veille',
+    'Attestations': 'attestations',
+  };
+  return map[title] || null;
+}
+
+function copyToClipboard(text, successMessage = 'Texte copié') {
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch {}
+    document.body.removeChild(ta);
+    showNotification('📋 Copier', successMessage);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showNotification('📋 Copier', successMessage))
+      .catch(fallback);
+  } else {
+    fallback();
+  }
+}
+
+function hideSmartContextMenu() {
+  const menu = document.getElementById('smartContextMenu');
+  if (menu) menu.classList.remove('visible');
+  state.contextActions = [];
+}
+
+function showSmartContextMenu(items, x, y) {
+  const menu = document.getElementById('smartContextMenu');
+  if (!menu || !Array.isArray(items) || !items.length) return;
+
+  state.contextActions = [];
+  let actionIndex = 0;
+
+  menu.innerHTML = items.map(item => {
+    if (item.separator) {
+      return '<div class="context-menu-separator" role="separator"></div>';
+    }
+
+    const disabled = !!item.disabled || typeof item.action !== 'function';
+    const actionAttr = disabled ? '' : ` data-action-index="${actionIndex++}"`;
+    if (!disabled) state.contextActions.push(item.action);
+
+    return `<div class="context-menu-item ${disabled ? 'disabled' : ''}" role="menuitem"${actionAttr}>${item.label}</div>`;
+  }).join('');
+
+  menu.style.left = Math.min(x, window.innerWidth - 230) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 260) + 'px';
+  menu.classList.add('visible');
+}
+
+document.getElementById('smartContextMenu').addEventListener('click', e => {
+  const item = e.target.closest('.context-menu-item');
+  if (!item || item.classList.contains('disabled')) return;
+  const idx = Number(item.dataset.actionIndex);
+  if (Number.isNaN(idx)) return;
+  const action = state.contextActions[idx];
+  hideSmartContextMenu();
+  if (typeof action === 'function') action();
+});
+
+document.addEventListener('contextmenu', e => {
+  if (e.target.closest('#contextMenu') || e.target.closest('#smartContextMenu')) return;
+
+  const desktopIcon = e.target.closest('.desktop-icon');
+  if (desktopIcon) {
+    e.preventDefault();
+    const winId = desktopIcon.dataset.window;
+    const label = desktopIcon.querySelector('.desktop-icon-label')?.textContent || winId;
+    showSmartContextMenu([
+      { label: '📂 Ouvrir', action: () => winId && openWindow(winId) },
+      { label: '📋 Copier le nom', action: () => copyToClipboard(label, 'Nom de l\'icône copié') },
+      { separator: true },
+      { label: 'ℹ️ Propriétés', action: () => showNotification('Propriétés', `${label} (${winId || 'application'})`) }
+    ], e.clientX, e.clientY);
+    return;
+  }
+
+  const taskbarBtn = e.target.closest('#taskbarApps .taskbar-btn');
+  if (taskbarBtn) {
+    e.preventDefault();
+    const title = taskbarBtn.getAttribute('title') || 'Application';
+    const winId = getWindowIdFromTaskbarTitle(title);
+    const win = winId ? state.windows[winId] : null;
+    showSmartContextMenu([
+      {
+        label: win && !win.classList.contains('minimized') ? '🗕 Réduire' : '📂 Ouvrir',
+        action: () => {
+          if (!winId) {
+            taskbarBtn.click();
+            return;
+          }
+          if (state.windows[winId] && !state.windows[winId].classList.contains('minimized')) {
+            minimizeWindow(winId);
+          } else {
+            openWindow(winId);
+          }
+        }
+      },
+      {
+        label: '❌ Fermer',
+        disabled: !winId || !state.windows[winId],
+        action: () => winId && closeWindow(winId)
+      }
+    ], e.clientX, e.clientY);
+    return;
+  }
+
+  const scolariteItemEl = e.target.closest('.scolaire-item');
+  if (scolariteItemEl) {
+    e.preventDefault();
+    const itemId = scolariteItemEl.dataset.scolariteId;
+    const item = itemId ? findNode(scolariteData, itemId) : null;
+    if (!item) return;
+
+    onScolariteItemClick({ currentTarget: scolariteItemEl }, itemId);
+    showSmartContextMenu([
+      {
+        label: item.type === 'folder' ? '📂 Ouvrir le dossier' : '📄 Ouvrir le fichier',
+        action: () => onScolariteItemDblClick(itemId)
+      },
+      { label: '📋 Copier le nom', action: () => copyToClipboard(item.name, 'Nom du fichier copié') },
+      { separator: true },
+      {
+        label: 'ℹ️ Propriétés',
+        action: () => showNotification('Scolarité', `${item.name} • ${(item.meta || []).join(' | ') || item.type}`)
+      }
+    ], e.clientX, e.clientY);
+    return;
+  }
+
+  const projectItemEl = e.target.closest('.file-item[data-project-index]');
+  if (projectItemEl) {
+    e.preventDefault();
+    const projectIndex = Number(projectItemEl.dataset.projectIndex);
+    const project = projects[projectIndex];
+    showSmartContextMenu([
+      { label: '🔎 Afficher les détails', action: () => selectProject(projectItemEl, projectIndex) },
+      { label: '📋 Copier le nom', action: () => copyToClipboard(project?.title || '', 'Nom de compétence copié') },
+      { separator: true },
+      { label: 'ℹ️ Résumé', action: () => showNotification(project?.title || 'Compétence', project?.desc || 'Aucun détail') }
+    ], e.clientX, e.clientY);
+    return;
+  }
+
+  const mailItemEl = e.target.closest('.mail-list-item[data-mail-kind][data-mail-index]');
+  if (mailItemEl) {
+    e.preventDefault();
+    const kind = mailItemEl.dataset.mailKind;
+    const idx = Number(mailItemEl.dataset.mailIndex);
+    if (Number.isNaN(idx)) return;
+
+    if (kind === 'inbox') {
+      const mail = inboxEmails[idx];
+      if (!mail) return;
+      const unread = !mail.read;
+      showSmartContextMenu([
+        { label: '📬 Ouvrir le mail', action: () => openInboxMail(idx) },
+        {
+          label: unread ? '✅ Marquer comme lu' : '🔔 Marquer comme non lu',
+          action: () => {
+            mail.read = !mail.read;
+            updateInboxCount();
+            const activeInbox = document.querySelector('.mail-folder.active[onclick*=inbox]');
+            if (activeInbox) switchMailFolder(activeInbox, 'inbox');
+          }
+        },
+        { label: '📋 Copier l\'objet', action: () => copyToClipboard(mail.subject, 'Objet copié') }
+      ], e.clientX, e.clientY);
+      return;
+    }
+
+    if (kind === 'sent') {
+      const mail = sentEmails[idx];
+      if (!mail) return;
+      showSmartContextMenu([
+        { label: '📬 Ouvrir le mail', action: () => openSentMail(idx) },
+        { label: '📋 Copier l\'objet', action: () => copyToClipboard(mail.subject, 'Objet copié') }
+      ], e.clientX, e.clientY);
+      return;
+    }
+  }
+
+  const codeLineText = e.target.closest('.code-line-text');
+  if (codeLineText) {
+    e.preventDefault();
+    showSmartContextMenu([
+      { label: '📋 Copier la ligne', action: () => copyToClipboard(codeLineText.textContent || '', 'Ligne copiée') }
+    ], e.clientX, e.clientY);
+    return;
+  }
+
+  const win = e.target.closest('.os-window');
+  if (win) {
+    e.preventDefault();
+    const winId = win.dataset.windowId;
+    if (!winId) return;
+    showSmartContextMenu([
+      { label: '🗕 Réduire', action: () => minimizeWindow(winId) },
+      {
+        label: win.classList.contains('maximized') ? '🗗 Restaurer' : '🗖 Agrandir',
+        action: () => maximizeWindow(winId)
+      },
+      { label: '❌ Fermer', action: () => closeWindow(winId) }
+    ], e.clientX, e.clientY);
+  }
+});
+
 document.getElementById('desktop').addEventListener('contextmenu', e => {
   e.preventDefault();
   // Ignore right-click inside a window
-  if (e.target.closest('.os-window')) return;
+  if (e.target.closest('.os-window') || e.target.closest('.desktop-icon')) return;
   const cm = document.getElementById('contextMenu');
   // Clamp to viewport
   const x = Math.min(e.clientX, window.innerWidth - 220);
@@ -4005,11 +4237,13 @@ document.getElementById('desktop').addEventListener('contextmenu', e => {
   cm.style.left = x + 'px';
   cm.style.top = y + 'px';
   cm.classList.add('visible');
+  hideSmartContextMenu();
   // Flip submenus if near right edge
   cm.classList.toggle('flip-submenu', x + 420 > window.innerWidth);
 });
 document.addEventListener('click', () => {
   document.getElementById('contextMenu').classList.remove('visible');
+  hideSmartContextMenu();
 });
 
 // ============================
@@ -4135,35 +4369,35 @@ function getWindowContent(id) {
         <div class="explorer-content">
           <div class="explorer-files" id="explorerFiles">
             <div style="grid-column:1/-1;font-size:0.7rem;color:var(--text-muted);font-weight:600;letter-spacing:0.5px;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:4px;">🧠 COMPÉTENCES</div>
-            <div class="file-item" onclick="selectProject(this, 0)">
+            <div class="file-item" data-project-index="0" onclick="selectProject(this, 0)">
               <div class="file-icon">🌐</div>
               <div class="file-name">Cisco / Réseau</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 1)">
+            <div class="file-item" data-project-index="1" onclick="selectProject(this, 1)">
               <div class="file-icon">🐧</div>
               <div class="file-name">Linux</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 2)">
+            <div class="file-item" data-project-index="2" onclick="selectProject(this, 2)">
               <div class="file-icon">🪟</div>
               <div class="file-name">Windows Server</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 3)">
+            <div class="file-item" data-project-index="3" onclick="selectProject(this, 3)">
               <div class="file-icon">🛡️</div>
               <div class="file-name">Cybersécurité</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 4)">
+            <div class="file-item" data-project-index="4" onclick="selectProject(this, 4)">
               <div class="file-icon">📡</div>
               <div class="file-name">Active Directory</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 5)">
+            <div class="file-item" data-project-index="5" onclick="selectProject(this, 5)">
               <div class="file-icon">🐍</div>
               <div class="file-name">Python</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 6)">
+            <div class="file-item" data-project-index="6" onclick="selectProject(this, 6)">
               <div class="file-icon">🔧</div>
               <div class="file-name">GLPI / ITSM</div>
             </div>
-            <div class="file-item" onclick="selectProject(this, 7)">
+            <div class="file-item" data-project-index="7" onclick="selectProject(this, 7)">
               <div class="file-icon">☁️</div>
               <div class="file-name">Virtualisation</div>
             </div>
@@ -4759,7 +4993,7 @@ function navigateScolarite(nodeId) {
     grid.innerHTML = `<div class="scolaire-empty"><div class="scolaire-empty-icon">📂</div><div>Ce dossier est vide</div></div>`;
   } else {
     grid.innerHTML = items.map(item => `
-      <div class="scolaire-item" onclick="onScolariteItemClick(event, '${item.id}')" ondblclick="onScolariteItemDblClick('${item.id}')">
+      <div class="scolaire-item" data-scolarite-id="${item.id}" onclick="onScolariteItemClick(event, '${item.id}')" ondblclick="onScolariteItemDblClick('${item.id}')">
         <div class="scolaire-item-icon">${item.icon}</div>
         <div class="scolaire-item-name">${item.name}</div>
         ${item.type === 'folder' ? `<div class="scolaire-item-meta">${(item.children || []).length} éléments</div>` : `<div class="scolaire-item-meta">${(item.meta && item.meta[1]) || ''}</div>`}
@@ -5532,7 +5766,7 @@ function renderSentView(mailMain) {
     const date = mail.date.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'});
     const initials = mail.from.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
     listHTML += `
-      <div class="mail-list-item" onclick="openSentMail(${realIdx})">
+      <div class="mail-list-item" data-mail-kind="sent" data-mail-index="${realIdx}" onclick="openSentMail(${realIdx})">
         <div class="mail-list-avatar">${initials}</div>
         <div class="mail-list-content">
           <div class="mail-list-header">
@@ -5599,7 +5833,7 @@ function renderInboxView(mailMain) {
     const initials = mail.from.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     const preview = mail.message.replace(/\n+/g, ' ').trim();
     listHTML += `
-      <div class="mail-list-item ${isUnread ? 'unread' : ''}" onclick="openInboxMail(${i})">
+      <div class="mail-list-item ${isUnread ? 'unread' : ''}" data-mail-kind="inbox" data-mail-index="${i}" onclick="openInboxMail(${i})">
         <span class="mail-unread-dot" style="visibility:${isUnread ? 'visible' : 'hidden'};"></span>
         <div class="mail-list-avatar" style="background:linear-gradient(135deg,#0078d4,#00a0c4);">${initials}</div>
         <div class="mail-list-content">
