@@ -1591,11 +1591,28 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .mail-list-item:hover { background: rgba(255,255,255,0.04); }
 .mail-list-item.selected { background: rgba(0,120,212,0.15); }
+.mail-list-item.unread {
+  background: rgba(0,120,212,0.08);
+}
+.mail-list-item.unread .mail-list-sender,
+.mail-list-item.unread .mail-list-subject {
+  color: var(--text-bright);
+  font-weight: 700;
+}
 .mail-list-avatar {
   width:32px; height:32px; border-radius:50%; flex-shrink:0;
   background: linear-gradient(135deg, var(--primary), var(--accent-purple));
   display:flex; align-items:center; justify-content:center;
   font-size:0.7rem; font-weight:700; color: var(--bg-dark);
+}
+.mail-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-top: 7px;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.45);
+  flex-shrink: 0;
 }
 .mail-list-content { flex:1; min-width:0; }
 .mail-list-header {
@@ -4233,7 +4250,7 @@ function getWindowContent(id) {
             <div class="mail-sidebar-header">📧 Mail</div>
             <button class="mail-compose-btn" onclick="showComposeView()">✏️ Nouveau message</button>
             <div class="mail-folders">
-              <div class="mail-folder active" onclick="switchMailFolder(this, 'inbox')">📥 Boîte de réception <span class="mail-folder-badge">1</span></div>
+              <div class="mail-folder active" onclick="switchMailFolder(this, 'inbox')">📥 Boîte de réception <span class="mail-folder-badge" id="inboxCount">1</span></div>
               <div class="mail-folder" onclick="switchMailFolder(this, 'sent')">📤 Éléments envoyés <span class="mail-folder-badge" id="sentCount" style="display:none;">0</span></div>
               <div class="mail-folder" onclick="switchMailFolder(this, 'drafts')">📝 Brouillons</div>
               <div class="mail-folder">⭐ Favoris</div>
@@ -5351,6 +5368,16 @@ function toggleProjetDesc(card) {
 // CONTACT FORM (FormSubmit.co)
 // ============================
 const sentEmails = [];
+const inboxEmails = [
+  {
+    from: 'Aymen Louraghi',
+    email: 'aymen.louraghi38@gmail.com',
+    subject: 'Bienvenue sur mon portfolio !',
+    message: `Merci de visiter mon portfolio.\n\nTu peux m'envoyer un message via le bouton Nouveau message, ou me contacter directement par email et LinkedIn.\n\nBonne visite !`,
+    dateLabel: "Aujourd'hui",
+    read: false
+  }
+];
 let currentMailFolder = 'inbox';
 
 function handleContactSubmit(e) {
@@ -5445,8 +5472,17 @@ function updateSentCount() {
   }
 }
 
+function updateInboxCount() {
+  const badge = document.getElementById('inboxCount');
+  if (!badge) return;
+  const unread = inboxEmails.filter(mail => !mail.read).length;
+  badge.textContent = unread;
+  badge.style.display = unread > 0 ? '' : 'none';
+}
+
 function switchMailFolder(el, folder) {
   currentMailFolder = folder;
+  updateInboxCount();
   // Update active folder
   const folders = el.closest('.mail-folders');
   if (folders) folders.querySelectorAll('.mail-folder').forEach(f => f.classList.remove('active'));
@@ -5544,24 +5580,68 @@ function openSentMail(idx) {
 }
 
 function renderInboxView(mailMain) {
-  const now = new Date();
-  const time = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-  mailMain.innerHTML = `
+  if (!inboxEmails.length) {
+    renderEmptyFolder(mailMain, '📥', 'Aucun message reçu');
+    return;
+  }
+
+  let listHTML = `
     <div class="mail-toolbar">
       <button class="mail-toolbar-btn" onclick="showComposeView()">✏️ Nouveau message</button>
+      <div class="mail-toolbar-sep"></div>
+      <span style="font-size:0.75rem;color:var(--text-muted);">${inboxEmails.length} message${inboxEmails.length > 1 ? 's' : ''}</span>
     </div>
     <div class="mail-list">
-      <div class="mail-list-item" style="background:rgba(0,120,212,0.08);">
-        <div class="mail-list-avatar" style="background:linear-gradient(135deg,#0078d4,#00a0c4);">AL</div>
+  `;
+
+  inboxEmails.forEach((mail, i) => {
+    const isUnread = !mail.read;
+    const initials = mail.from.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const preview = mail.message.replace(/\n+/g, ' ').trim();
+    listHTML += `
+      <div class="mail-list-item ${isUnread ? 'unread' : ''}" onclick="openInboxMail(${i})">
+        <span class="mail-unread-dot" style="visibility:${isUnread ? 'visible' : 'hidden'};"></span>
+        <div class="mail-list-avatar" style="background:linear-gradient(135deg,#0078d4,#00a0c4);">${initials}</div>
         <div class="mail-list-content">
           <div class="mail-list-header">
-            <span class="mail-list-sender">Aymen Louraghi</span>
-            <span class="mail-list-time">Aujourd'hui</span>
+            <span class="mail-list-sender">${mail.from}</span>
+            <span class="mail-list-time">${mail.dateLabel || ''}</span>
           </div>
-          <div class="mail-list-subject">Bienvenue sur mon portfolio !</div>
-          <div class="mail-list-preview">Merci de visiter mon portfolio. N'hésitez pas à me contacter via le bouton Nouveau message.</div>
+          <div class="mail-list-subject">${mail.subject}</div>
+          <div class="mail-list-preview">${preview.substring(0, 90)}${preview.length > 90 ? '...' : ''}</div>
         </div>
       </div>
+    `;
+  });
+
+  listHTML += '</div>';
+  mailMain.innerHTML = listHTML;
+}
+
+function openInboxMail(idx) {
+  const mail = inboxEmails[idx];
+  if (!mail) return;
+  mail.read = true;
+  updateInboxCount();
+  const mailMain = document.querySelector('.mail-container .mail-main');
+  if (!mailMain) return;
+
+  mailMain.innerHTML = `
+    <div class="mail-toolbar">
+      <button class="mail-toolbar-btn" onclick="switchMailFolder(document.querySelector('.mail-folder[onclick*=inbox]'), 'inbox')">⬅ Retour</button>
+      <div class="mail-toolbar-sep"></div>
+      <button class="mail-toolbar-btn" onclick="showComposeView()">✏️ Nouveau message</button>
+    </div>
+    <div class="mail-read-view">
+      <div class="mail-read-header">
+        <div class="mail-read-subject">${mail.subject}</div>
+        <div class="mail-read-meta">
+          <div><strong>De :</strong> ${mail.from} &lt;${mail.email}&gt;</div>
+          <div><strong>À :</strong> Vous (Visiteur)</div>
+          <div><strong>Date :</strong> ${mail.dateLabel || 'Aujourd\'hui'}</div>
+        </div>
+      </div>
+      <div class="mail-read-body">${mail.message.replace(/\n/g, '<br>')}</div>
     </div>
   `;
 }
@@ -6905,6 +6985,7 @@ document.addEventListener('keydown', e => {
 loadWallpaper();
 loadAccentColor();
 loadSentEmails();
+updateInboxCount();
 initTaskbarQuickSettings();
 
 </script>
