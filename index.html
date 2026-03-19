@@ -6040,12 +6040,38 @@ function initSynthese() {
 // ============================
 // WINDOW MANAGEMENT
 // ============================
+function getWindowElement(id) {
+  if (!id) return null;
+  const fromState = state.windows[id];
+  if (fromState && fromState.isConnected) return fromState;
+  const fromDom = Array.from(document.querySelectorAll('.os-window'))
+    .find(w => w.dataset && w.dataset.windowId === id);
+  if (fromDom) state.windows[id] = fromDom;
+  return fromDom || null;
+}
+
+function unregisterWindow(id, win) {
+  const target = win || getWindowElement(id);
+  if (target && target.isConnected) target.remove();
+  if (id && state.windows[id]) delete state.windows[id];
+  if (id) state.windowOrder = state.windowOrder.filter(w => w !== id);
+}
+
 function openWindow(id) {
+  // Cleanup stale state reference
+  if (state.windows[id] && !state.windows[id].isConnected) {
+    delete state.windows[id];
+    state.windowOrder = state.windowOrder.filter(w => w !== id);
+  }
+
   // If already open, focus it
-  if (state.windows[id]) {
-    const win = state.windows[id];
+  if (getWindowElement(id)) {
+    const win = getWindowElement(id);
     if (win.classList.contains('minimized')) {
       win.classList.remove('minimized');
+    }
+    if (win.classList.contains('closing')) {
+      win.classList.remove('closing');
     }
     focusWindow(id);
     return;
@@ -6114,27 +6140,41 @@ function openWindow(id) {
 }
 
 function closeWindow(id) {
-  const win = state.windows[id];
+  const win = getWindowElement(id);
   if (!win) return;
+
+  if (win.dataset.closing === '1') return;
+  win.dataset.closing = '1';
+  win.style.pointerEvents = 'none';
+  win.classList.remove('minimized');
   win.classList.add('closing');
-  setTimeout(() => {
-    win.remove();
-    delete state.windows[id];
-    state.windowOrder = state.windowOrder.filter(w => w !== id);
+
+  const finalize = () => {
+    unregisterWindow(id, win);
     updateTaskbar();
-  }, 250);
+  };
+
+  const timer = setTimeout(finalize, 320);
+  win.addEventListener('animationend', () => {
+    clearTimeout(timer);
+    finalize();
+  }, { once: true });
 }
 
 function minimizeWindow(id) {
-  const win = state.windows[id];
+  const win = getWindowElement(id);
   if (!win) return;
+  if (win.dataset.closing === '1') return;
   win.classList.add('minimized');
   updateTaskbar();
 }
 
 function maximizeWindow(id) {
-  const win = state.windows[id];
+  const win = getWindowElement(id);
   if (!win) return;
+  if (win.dataset.closing === '1') return;
+  if (win.classList.contains('minimized')) win.classList.remove('minimized');
+
   if (win.classList.contains('maximized')) {
     win.classList.remove('maximized');
     // Restore saved position
@@ -6158,7 +6198,7 @@ function maximizeWindow(id) {
 
 function focusWindow(id) {
   Object.values(state.windows).forEach(w => w.classList.remove('focused'));
-  const win = state.windows[id];
+  const win = getWindowElement(id);
   if (win) {
     win.style.zIndex = ++state.zCounter;
     win.classList.add('focused');
@@ -6184,7 +6224,10 @@ function updateTaskbar() {
         'Scolarité': 'scolarite',
         'Contact': 'contact',
         'Terminal': 'terminal',
-      'CV': 'cv'
+        'CV': 'cv',
+        'Synthèse E4': 'synthese',
+        'Veille': 'veille',
+        'Attestations': 'attestations'
       };
       if (map[title] === id && !state.windows[id].classList.contains('minimized')) {
         btn.classList.add('active');
