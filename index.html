@@ -2903,6 +2903,426 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 
 /* ============================================
+   WINDOW: MON PARCOURS (RPG 16-BITS)
+   ============================================ */
+.rpg-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 3px;
+  border: 2px solid rgba(255,255,255,0.65);
+  background:
+    linear-gradient(135deg, #1e3a5f, #294a71),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.35);
+  position: relative;
+  image-rendering: pixelated;
+}
+.rpg-card-icon::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.12) 0 12px, transparent 12px),
+    linear-gradient(180deg, rgba(0,0,0,0.22) 0 10px, transparent 10px),
+    linear-gradient(120deg, #1f6ea5 0%, #4a8fc0 55%, #2f5c87 100%);
+}
+.rpg-card-icon::after {
+  content: '8bit';
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.42rem;
+  letter-spacing: 0.4px;
+  color: rgba(255,255,255,0.7);
+}
+
+.parcours-rpg {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(180deg, #11253c 0%, #0b1b2f 100%);
+}
+.parcours-rpg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.25);
+  font-size: 0.75rem;
+}
+.parcours-rpg-title {
+  font-family: var(--font-mono);
+  letter-spacing: 0.6px;
+  color: #d6f0ff;
+}
+.parcours-rpg-hint {
+  color: #9fc5de;
+}
+.parcours-rpg-map {
+  position: relative;
+  flex: 1;
+  margin: 12px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, #79b8df 0%, #9fd3f2 37%, #5ba76b 37%, #4f965f 100%);
+  image-rendering: pixelated;
+}
+.parcours-rpg-map::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.09) 0 2px, transparent 2px 6px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.parcours-rpg-map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 18% 78%, rgba(0,0,0,0.2), transparent 42%),
+    radial-gradient(ellipse at 58% 88%, rgba(0,0,0,0.2), transparent 45%),
+    radial-gradient(ellipse at 84% 27%, rgba(255,255,170,0.18), transparent 24%);
+  pointer-events: none;
+}
+.parcours-path {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.parcours-cloud {
+  position: absolute;
+  z-index: 2;
+  width: 56px;
+  height: 22px;
+  background: #f5fbff;
+  border: 2px solid rgba(255,255,255,0.75);
+  border-radius: 16px;
+  box-shadow: inset 0 -4px 0 rgba(120,140,160,0.3);
+  opacity: 0.9;
+  animation: cloudDrift linear infinite;
+}
+.parcours-cloud::before,
+.parcours-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: #f5fbff;
+  border: 2px solid rgba(255,255,255,0.75);
+}
+.parcours-cloud::before {
+  width: 18px;
+  height: 18px;
+  left: 8px;
+  top: -11px;
+}
+.parcours-cloud::after {
+  width: 22px;
+  height: 22px;
+  right: 8px;
+  top: -14px;
+}
+@keyframes cloudDrift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
+
+.parcours-tree,
+.parcours-castle,
+.parcours-office,
+.parcours-school,
+.parcours-portal {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  image-rendering: pixelated;
+  transform: translate(-50%, -100%);
+}
+.parcours-tree {
+  width: 16px;
+  height: 24px;
+}
+.parcours-tree::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 0;
+  height: 14px;
+  background: #2e6f3e;
+  border: 2px solid #1d4a29;
+  border-radius: 2px;
+}
+.parcours-tree::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  width: 4px;
+  bottom: 0;
+  height: 9px;
+  background: #704826;
+  border: 1px solid #4b2f17;
+}
+
+.parcours-school,
+.parcours-office,
+.parcours-castle {
+  width: 54px;
+  height: 42px;
+  border: 2px solid #1f2a38;
+  background: #d0d7e3;
+  box-shadow: inset 0 -8px 0 rgba(40,60,80,0.2);
+}
+.parcours-school {
+  background: linear-gradient(180deg, #d7dde8 0 62%, #bcc8d8 62% 100%);
+}
+.parcours-school::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: -10px;
+  height: 10px;
+  background: #8e3244;
+  border: 2px solid #5e1f2c;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+.parcours-school::after {
+  content: '';
+  position: absolute;
+  right: 6px;
+  top: -20px;
+  width: 2px;
+  height: 16px;
+  background: #f2f6ff;
+  box-shadow: 4px 4px 0 0 #315ca8;
+}
+
+.parcours-office {
+  background: linear-gradient(180deg, #a9d2f8 0 58%, #7fa8d1 58% 100%);
+}
+.parcours-office::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  top: 6px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, #2a5c95 0 6px, #4f88c3 6px 10px);
+}
+.parcours-office::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, #2a5c95 0 6px, #4f88c3 6px 10px);
+}
+
+.parcours-castle {
+  background: linear-gradient(180deg, #ccd7e8 0 56%, #b2bfd4 56% 100%);
+}
+.parcours-castle::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: -14px;
+  height: 12px;
+  background: repeating-linear-gradient(90deg, #d9e3f5 0 8px, #a7b8d4 8px 12px);
+  border: 2px solid #1f2a38;
+}
+.parcours-castle::after {
+  content: '';
+  position: absolute;
+  right: 6px;
+  top: -22px;
+  width: 3px;
+  height: 18px;
+  background: #f0f5ff;
+  box-shadow: 5px 2px 0 0 #fff6a8;
+}
+
+.parcours-portal {
+  width: 26px;
+  height: 34px;
+  border-radius: 16px;
+  border: 2px solid #5f6ff0;
+  background: radial-gradient(circle at 50% 45%, #f8ffff 0%, #90d8ff 35%, #6584ef 72%, #3947a8 100%);
+  box-shadow: 0 0 14px rgba(138,168,255,0.7);
+  animation: portalPulse 1s steps(2, end) infinite;
+}
+@keyframes portalPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+.parcours-hero {
+  position: absolute;
+  z-index: 7;
+  width: 20px;
+  height: 28px;
+  transform: translate(-50%, -82%);
+  transition: left 0.4s linear, top 0.4s linear;
+  pointer-events: none;
+}
+.parcours-hero::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 14px;
+  height: 12px;
+  border-radius: 2px;
+  background: #f8d5b2;
+  border: 2px solid #b87f58;
+}
+.parcours-hero::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  bottom: 0;
+  width: 18px;
+  height: 17px;
+  background: linear-gradient(180deg, #2f66a5 0 65%, #1f3d63 65% 100%);
+  border: 2px solid #142943;
+}
+.parcours-hero.walking {
+  animation: heroStep 0.32s steps(2, end) infinite;
+}
+@keyframes heroStep {
+  0%, 100% { transform: translate(-50%, -82%) translateY(0); }
+  50% { transform: translate(-50%, -82%) translateY(1px); }
+}
+
+.parcours-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 88px;
+  background: rgba(6, 15, 28, 0.8);
+  border: 2px solid rgba(220,239,255,0.5);
+  border-radius: 8px;
+  color: #eaf6ff;
+  padding: 7px 4px 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: var(--font-mono);
+}
+.parcours-node:hover,
+.parcours-node:focus-visible {
+  transform: translate(-50%, -50%) scale(1.04);
+  border-color: #9ad7ff;
+  box-shadow: 0 0 0 2px rgba(154,215,255,0.2);
+}
+.parcours-node.active {
+  border-color: #ffe38b;
+  box-shadow: 0 0 14px rgba(255,227,139,0.45);
+}
+.parcours-node.current {
+  animation: parcoursPulse 1.25s steps(2, end) infinite;
+}
+@keyframes parcoursPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(89,255,171,0.2), 0 0 12px rgba(89,255,171,0.25); }
+  50% { box-shadow: 0 0 0 5px rgba(89,255,171,0.08), 0 0 18px rgba(89,255,171,0.65); }
+}
+.parcours-node-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.parcours-node-name {
+  font-size: 0.62rem;
+  letter-spacing: 0.25px;
+}
+.parcours-dialog {
+  margin: 0 12px 12px;
+  padding: 11px 12px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  background: #0b1222;
+  color: #dfedff;
+  min-height: 128px;
+}
+.parcours-dialog-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.parcours-dialog-title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #b8dbff;
+  letter-spacing: 0.35px;
+}
+.parcours-dialog-badge {
+  font-size: 0.62rem;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(0,212,255,0.18);
+  border: 1px solid rgba(0,212,255,0.35);
+  color: #a6eaff;
+}
+.parcours-dialog-text {
+  margin-top: 8px;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  min-height: 54px;
+  color: #e7f2ff;
+}
+.parcours-dialog-footer {
+  margin-top: 9px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.parcours-progress {
+  flex: 1;
+  height: 8px;
+  border: 1px solid rgba(255,255,255,0.26);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.08);
+}
+.parcours-progress-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #4fd3ff, #88ffbe);
+  transition: width 0.35s ease;
+}
+.parcours-year {
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  color: #98bdd9;
+}
+
+@media (max-width: 768px) {
+  .parcours-rpg-header { padding: 8px 10px; font-size: 0.68rem; }
+  .parcours-rpg-map { margin: 8px; }
+  .parcours-cloud { width: 42px; height: 16px; }
+  .parcours-school, .parcours-office, .parcours-castle { width: 38px; height: 30px; }
+  .parcours-tree { width: 12px; height: 20px; }
+  .parcours-hero { width: 16px; height: 24px; }
+  .parcours-node { width: 70px; padding: 6px 3px 4px; }
+  .parcours-node-icon { font-size: 1.08rem; }
+  .parcours-node-name { font-size: 0.54rem; }
+  .parcours-dialog { margin: 0 8px 8px; padding: 8px 9px; min-height: 112px; }
+  .parcours-dialog-text { font-size: 0.68rem; min-height: 48px; }
+}
+
+/* ============================================
    CONTEXT MENU
    ============================================ */
 .context-menu {
@@ -3301,6 +3721,10 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
       <div class="desktop-icon-img">🎓</div>
       <div class="desktop-icon-label">Scolarité</div>
     </div>
+    <div class="desktop-icon" data-window="monparcours" ondblclick="openWindow('monparcours')">
+      <div class="desktop-icon-img"><span class="rpg-card-icon" aria-hidden="true"></span></div>
+      <div class="desktop-icon-label">Mon parcours</div>
+    </div>
     <div class="desktop-icon" data-window="cv" ondblclick="openWindow('cv')">
       <div class="desktop-icon-img">📄</div>
       <div class="desktop-icon-label">CV.pdf</div>
@@ -3333,6 +3757,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     <button class="taskbar-btn" onclick="openWindow('contact')" title="Contact">📨</button>
     <button class="taskbar-btn" onclick="openWindow('terminal')" title="Terminal">⬛</button>
     <button class="taskbar-btn" onclick="openWindow('scolarite')" title="Scolarité">🎓</button>
+    <button class="taskbar-btn" onclick="openWindow('monparcours')" title="Mon parcours">🗺️</button>
     <button class="taskbar-btn" onclick="openWindow('cv')" title="CV">📄</button>
     <button class="taskbar-btn" onclick="openWindow('synthese')" title="Synthèse E4">📊</button>
     <button class="taskbar-btn" onclick="openWindow('veille')" title="Veille">📡</button>
@@ -3408,6 +3833,10 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     <div class="start-app" onclick="openWindow('scolarite'); toggleStartMenu();">
       <div class="start-app-icon">🎓</div>
       <div class="start-app-label">Scolarité</div>
+    </div>
+    <div class="start-app" onclick="openWindow('monparcours'); toggleStartMenu();">
+      <div class="start-app-icon">🗺️</div>
+      <div class="start-app-label">Mon parcours</div>
     </div>
     <div class="start-app" onclick="openWindow('cv'); toggleStartMenu();">
       <div class="start-app-icon">📄</div>
@@ -4011,6 +4440,7 @@ function getWindowIdFromTaskbarTitle(title) {
     'Contact': 'contact',
     'Terminal': 'terminal',
     'Scolarité': 'scolarite',
+    'Mon parcours': 'monparcours',
     'CV': 'cv',
     'Synthèse E4': 'synthese',
     'Veille': 'veille',
@@ -4448,6 +4878,75 @@ function getWindowContent(id) {
             <div class="scolaire-statusbar">
               <span id="scolariteCount">0 éléments</span>
               <span id="scolariteLocation">Scolarité</span>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    monparcours: {
+      title: 'Mon parcours — Carte RPG',
+      icon: '🗺️',
+      width: 980, height: 640,
+      content: `
+        <div class="parcours-rpg parcours-root" id="parcoursRoot">
+          <div class="parcours-rpg-header">
+            <div class="parcours-rpg-title">MON PARCOURS - AVENTURE ACADEMIQUE</div>
+            <div class="parcours-rpg-hint">Cliquez un jalon: le personnage marche, puis la scene apparait</div>
+          </div>
+          <div class="parcours-rpg-map" role="group" aria-label="Carte de progression RPG">
+            <div class="parcours-cloud" style="left: 9%; top: 7%; animation-duration: 10s;"></div>
+            <div class="parcours-cloud" style="left: 58%; top: 12%; animation-duration: 12s;"></div>
+
+            <div class="parcours-tree" style="left: 20%; top: 80%;"></div>
+            <div class="parcours-tree" style="left: 27%; top: 74%;"></div>
+            <div class="parcours-tree" style="left: 47%; top: 81%;"></div>
+            <div class="parcours-tree" style="left: 64%; top: 63%;"></div>
+            <div class="parcours-tree" style="left: 74%; top: 50%;"></div>
+
+            <div class="parcours-school" style="left: 7%; top: 63%;"></div>
+            <div class="parcours-office" style="left: 47%; top: 57%;"></div>
+            <div class="parcours-castle" style="left: 82%; top: 14%;"></div>
+            <div class="parcours-portal" style="left: 93%; top: 19%;"></div>
+
+            <svg class="parcours-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <polyline points="14,70 34,58 52,65 71,45 88,24" fill="none" stroke="rgba(95,68,44,0.72)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              <polyline points="14,70 34,58 52,65 71,45 88,24" fill="none" stroke="rgba(255,235,185,0.95)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"></polyline>
+            </svg>
+
+            <div class="parcours-hero" id="parcoursHero" aria-hidden="true"></div>
+
+            <button type="button" class="parcours-node rpg-node" data-step="bac" data-x="14" data-y="70" style="left:14%;top:70%;" aria-label="Jalon BAC">
+              <div class="parcours-node-icon">🏫🇫🇷</div>
+              <div class="parcours-node-name">BAC</div>
+            </button>
+
+            <button type="button" class="parcours-node rpg-node" data-step="bts" data-x="34" data-y="58" style="left:34%;top:58%;" aria-label="Jalon BTS">
+              <div class="parcours-node-icon">🏛️</div>
+              <div class="parcours-node-name">BTS</div>
+            </button>
+
+            <button type="button" class="parcours-node rpg-node current" data-step="alternance" data-x="52" data-y="65" style="left:52%;top:65%;" aria-label="Jalon Alternance (étape actuelle)">
+              <div class="parcours-node-icon">🏢</div>
+              <div class="parcours-node-name">Alternance</div>
+            </button>
+
+            <button type="button" class="parcours-node rpg-node" data-step="futur" data-x="88" data-y="24" style="left:88%;top:24%;" aria-label="Jalon Futur job">
+              <div class="parcours-node-icon">🏰✨</div>
+              <div class="parcours-node-name">Futur job</div>
+            </button>
+          </div>
+
+          <div class="parcours-dialog" role="region" aria-live="polite" aria-label="Fenêtre de dialogue RPG">
+            <div class="parcours-dialog-top">
+              <div class="parcours-dialog-title" id="parcoursDialogTitle">Choisissez un jalon</div>
+              <div class="parcours-dialog-badge" id="parcoursDialogBadge">Aventure</div>
+            </div>
+            <div class="parcours-dialog-text" id="parcoursDialogText">Cliquez sur un bâtiment pour afficher une scène narrative et les détails de l'étape.</div>
+            <div class="parcours-dialog-footer">
+              <div class="parcours-progress" aria-hidden="true">
+                <div class="parcours-progress-fill" id="parcoursProgressFill"></div>
+              </div>
+              <div class="parcours-year" id="parcoursDialogYear">--- </div>
             </div>
           </div>
         </div>
@@ -6038,6 +6537,214 @@ function initSynthese() {
 }
 
 // ============================
+// MON PARCOURS (RPG)
+// ============================
+function initMonParcours() {
+  const root = document.querySelector('#window-monparcours .parcours-root');
+  if (!root || root.dataset.initialized === '1') return;
+  root.dataset.initialized = '1';
+
+  const points = {
+    bac: {
+      title: 'BAC - Le lycee au drapeau francais',
+      badge: 'Quete accomplie',
+      year: 'Obtention: 2024',
+      progress: 25,
+      text: 'Tu arrives devant un petit lycee 16 bits avec le drapeau francais. Ici, j ai obtenu mon baccalaureat en 2024. Cette etape m a donne les bases de rigueur, de methode et la motivation pour poursuivre vers l informatique.'
+    },
+    bts: {
+      title: 'BTS - Le campus superieur',
+      badge: 'Niveau superieur',
+      year: 'Periode: 2024-2026',
+      progress: 55,
+      text: 'Le batiment d etudes superieures est plus vaste: c est le prochain arret de ma progression academique. Le BTS SIO SISR m a permis de travailler en profondeur les reseaux, systemes, securite et la gestion de projet.'
+    },
+    alternance: {
+      title: 'Alternance - QG entreprise',
+      badge: 'Poste actuel',
+      year: 'En poste actuellement',
+      progress: 78,
+      text: 'Le bureau moderne pixelise represente mon entreprise actuelle. Mon personnage est stationne ici: je travaille en conditions reelles, je monte en competence technique et je transforme la theorie en actions concretes au quotidien.'
+    },
+    futur: {
+      title: 'Futur Job - Chateau objectif',
+      badge: 'Defi final',
+      year: 'Objectif: 2026+',
+      progress: 100,
+      text: 'Au loin, un chateau lumineux apparait comme le boss final: mon futur job. Cette destination symbolise mes ambitions a moyen terme: consolider mon expertise, prendre des responsabilites et evoluer vers des missions a fort impact.'
+    }
+  };
+
+  const titleEl = root.querySelector('#parcoursDialogTitle');
+  const badgeEl = root.querySelector('#parcoursDialogBadge');
+  const textEl = root.querySelector('#parcoursDialogText');
+  const yearEl = root.querySelector('#parcoursDialogYear');
+  const progressEl = root.querySelector('#parcoursProgressFill');
+  const heroEl = root.querySelector('#parcoursHero');
+  const mapEl = root.querySelector('.parcours-rpg-map');
+  const nodes = root.querySelectorAll('.rpg-node');
+  const routeOrder = ['bac', 'bts', 'alternance', 'futur'];
+  const nodeByStep = {};
+  nodes.forEach(node => {
+    nodeByStep[node.dataset.step] = node;
+  });
+
+  let currentStep = 'alternance';
+  let isMoving = false;
+  let pendingTarget = null;
+  let typingTimer = null;
+
+  function typeText(message) {
+    if (!textEl) return;
+    if (typingTimer) clearInterval(typingTimer);
+    textEl.textContent = '';
+    let i = 0;
+    typingTimer = setInterval(() => {
+      textEl.textContent += message[i] || '';
+      i++;
+      if (i >= message.length) {
+        clearInterval(typingTimer);
+        typingTimer = null;
+      }
+    }, 12);
+  }
+
+  function selectStep(stepKey) {
+    const info = points[stepKey];
+    if (!info) return;
+
+    nodes.forEach(node => {
+      node.classList.toggle('active', node.dataset.step === stepKey);
+    });
+
+    if (titleEl) titleEl.textContent = info.title;
+    if (badgeEl) badgeEl.textContent = info.badge;
+    if (yearEl) yearEl.textContent = info.year;
+    if (progressEl) progressEl.style.width = info.progress + '%';
+    typeText(info.text);
+  }
+
+  function setHeroAtStep(stepKey, instant = false) {
+    const node = nodeByStep[stepKey];
+    if (!node || !heroEl) return;
+    const x = Number(node.dataset.x || '0');
+    const y = Number(node.dataset.y || '0');
+    if (instant) heroEl.style.transition = 'none';
+    heroEl.style.left = x + '%';
+    heroEl.style.top = y + '%';
+    if (instant) {
+      heroEl.offsetHeight;
+      heroEl.style.transition = 'left 0.4s linear, top 0.4s linear';
+    }
+  }
+
+  function getNodePixelPosition(stepKey) {
+    const node = nodeByStep[stepKey];
+    if (!node || !mapEl) return null;
+    const mapRect = mapEl.getBoundingClientRect();
+    const rect = node.getBoundingClientRect();
+    return {
+      x: rect.left - mapRect.left + (rect.width / 2),
+      y: rect.top - mapRect.top + (rect.height / 2)
+    };
+  }
+
+  function animateHeroTo(stepKey) {
+    return new Promise(resolve => {
+      if (!heroEl) {
+        resolve();
+        return;
+      }
+      const from = getNodePixelPosition(currentStep);
+      const to = getNodePixelPosition(stepKey);
+      if (!from || !to) {
+        setHeroAtStep(stepKey);
+        resolve();
+        return;
+      }
+
+      const dist = Math.hypot(to.x - from.x, to.y - from.y);
+      const duration = Math.max(260, Math.min(900, dist * 3));
+      heroEl.style.transition = `left ${duration}ms linear, top ${duration}ms linear`;
+      heroEl.classList.add('walking');
+
+      const done = () => {
+        heroEl.classList.remove('walking');
+        heroEl.removeEventListener('transitionend', onTransitionEnd);
+        resolve();
+      };
+
+      const timer = setTimeout(done, duration + 80);
+      const onTransitionEnd = () => {
+        clearTimeout(timer);
+        done();
+      };
+
+      heroEl.addEventListener('transitionend', onTransitionEnd);
+      setHeroAtStep(stepKey);
+    });
+  }
+
+  function getRouteBetween(fromStep, toStep) {
+    const fromIndex = routeOrder.indexOf(fromStep);
+    const toIndex = routeOrder.indexOf(toStep);
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return [];
+
+    const path = [];
+    const direction = toIndex > fromIndex ? 1 : -1;
+    for (let i = fromIndex + direction; direction > 0 ? i <= toIndex : i >= toIndex; i += direction) {
+      path.push(routeOrder[i]);
+    }
+    return path;
+  }
+
+  async function goToStep(stepKey) {
+    if (!points[stepKey]) return;
+    if (isMoving) {
+      pendingTarget = stepKey;
+      return;
+    }
+
+    if (stepKey === currentStep) {
+      selectStep(stepKey);
+      return;
+    }
+
+    isMoving = true;
+    pendingTarget = null;
+    if (titleEl) titleEl.textContent = 'Deplacement en cours...';
+    if (badgeEl) badgeEl.textContent = 'Exploration';
+    if (yearEl) yearEl.textContent = 'Le personnage suit la route';
+    if (textEl) textEl.textContent = 'Le personnage se dirige vers le prochain jalon...';
+
+    const route = getRouteBetween(currentStep, stepKey);
+    for (const segmentStep of route) {
+      await animateHeroTo(segmentStep);
+      currentStep = segmentStep;
+      nodes.forEach(node => {
+        node.classList.toggle('active', node.dataset.step === currentStep);
+      });
+    }
+
+    isMoving = false;
+    selectStep(currentStep);
+
+    if (pendingTarget && pendingTarget !== currentStep) {
+      const target = pendingTarget;
+      pendingTarget = null;
+      goToStep(target);
+    }
+  }
+
+  nodes.forEach(node => {
+    node.addEventListener('click', () => goToStep(node.dataset.step));
+  });
+
+  setHeroAtStep(currentStep, true);
+  selectStep(currentStep);
+}
+
+// ============================
 // WINDOW MANAGEMENT
 // ============================
 function getWindowElement(id) {
@@ -6132,6 +6839,7 @@ function openWindow(id) {
   if (id === 'terminal') initTerminal();
   if (id === 'projets') initProjets();
   if (id === 'scolarite') initScolarite();
+  if (id === 'monparcours') initMonParcours();
   if (id === 'cv') initCvViewer();
   if (id === 'synthese') initSynthese();
 
@@ -6222,6 +6930,7 @@ function updateTaskbar() {
         'Réalisations': 'realisations',
         'Projets': 'projets',
         'Scolarité': 'scolarite',
+        'Mon parcours': 'monparcours',
         'Contact': 'contact',
         'Terminal': 'terminal',
         'CV': 'cv',
@@ -7074,6 +7783,20 @@ function triggerSelfDestruct() {
   const container = document.querySelector('.desktop-icons');
   const icons = document.querySelectorAll('.desktop-icon');
   const STORAGE_KEY = 'desktopIconPositions';
+  const DEFAULT_GRID_POSITIONS = {
+    accueil: [0, 0],
+    apropos: [0, 1],
+    realisations: [0, 2],
+    projets: [0, 3],
+    contact: [0, 4],
+    terminal: [0, 5],
+    scolarite: [1, 0],
+    monparcours: [1, 1],
+    cv: [1, 2],
+    synthese: [1, 3],
+    veille: [1, 4],
+    attestations: [1, 5]
+  };
 
   function getGridArea() {
     const rect = container.getBoundingClientRect();
@@ -7100,6 +7823,25 @@ function triggerSelfDestruct() {
     return false;
   }
 
+  function xyKey(x, y) {
+    return `${x},${y}`;
+  }
+
+  function getNextFreeSlot(occupiedSet) {
+    const area = getGridArea();
+    const maxCol = Math.max(0, Math.floor((area.w - 90) / GRID_W));
+    const maxRow = Math.max(0, Math.floor((area.h - 80) / GRID_H));
+
+    for (let col = 0; col <= maxCol; col++) {
+      for (let row = 0; row <= maxRow; row++) {
+        const pos = snapToGrid(col * GRID_W, row * GRID_H);
+        const key = xyKey(pos.x, pos.y);
+        if (!occupiedSet.has(key)) return pos;
+      }
+    }
+    return { x: 0, y: 0 };
+  }
+
   function posKey(icon) { return icon.dataset.window; }
 
   function savePositions() {
@@ -7119,32 +7861,68 @@ function triggerSelfDestruct() {
   }
 
   function layoutDefault() {
-    const area = getGridArea();
-    const maxRows = Math.floor(area.h / GRID_H) || 6;
-    let col = 0, row = 0;
+    const occupiedSet = new Set();
     icons.forEach(icon => {
-      const pos = snapToGrid(col * GRID_W, row * GRID_H);
+      const key = posKey(icon);
+      let pos;
+
+      if (DEFAULT_GRID_POSITIONS[key]) {
+        const [col, row] = DEFAULT_GRID_POSITIONS[key];
+        pos = snapToGrid(col * GRID_W, row * GRID_H);
+      } else {
+        pos = getNextFreeSlot(occupiedSet);
+      }
+
+      if (occupiedSet.has(xyKey(pos.x, pos.y))) {
+        pos = getNextFreeSlot(occupiedSet);
+      }
+
       icon.style.left = pos.x + 'px';
       icon.style.top = pos.y + 'px';
-      row++;
-      if (row >= maxRows) { row = 0; col++; }
+      occupiedSet.add(xyKey(pos.x, pos.y));
     });
+    savePositions();
+  }
+
+  function restoreSafe(saved) {
+    const occupiedSet = new Set();
+
+    icons.forEach(icon => {
+      const key = posKey(icon);
+      const raw = saved && saved[key] ? saved[key] : null;
+      let pos = null;
+
+      if (raw && Number.isFinite(raw.x) && Number.isFinite(raw.y)) {
+        const snapped = snapToGrid(raw.x, raw.y);
+        const k = xyKey(snapped.x, snapped.y);
+        if (!occupiedSet.has(k)) {
+          pos = snapped;
+        }
+      }
+
+      if (!pos && DEFAULT_GRID_POSITIONS[key]) {
+        const [col, row] = DEFAULT_GRID_POSITIONS[key];
+        const def = snapToGrid(col * GRID_W, row * GRID_H);
+        const k = xyKey(def.x, def.y);
+        if (!occupiedSet.has(k)) pos = def;
+      }
+
+      if (!pos) {
+        pos = getNextFreeSlot(occupiedSet);
+      }
+
+      icon.style.left = pos.x + 'px';
+      icon.style.top = pos.y + 'px';
+      occupiedSet.add(xyKey(pos.x, pos.y));
+    });
+
     savePositions();
   }
 
   function restoreOrLayout() {
     const saved = loadPositions();
     if (saved) {
-      let allFound = true;
-      icons.forEach(icon => {
-        const key = posKey(icon);
-        if (saved[key]) {
-          const pos = snapToGrid(saved[key].x, saved[key].y);
-          icon.style.left = pos.x + 'px';
-          icon.style.top = pos.y + 'px';
-        } else { allFound = false; }
-      });
-      if (!allFound) layoutDefault();
+      restoreSafe(saved);
     } else {
       layoutDefault();
     }
