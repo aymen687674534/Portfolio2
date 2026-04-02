@@ -1325,6 +1325,36 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   gap: 10px;
   padding-right: 2px;
 }
+.mission-group {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(151, 212, 255, 0.22);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(10, 24, 43, 0.62) 0%, rgba(6, 16, 30, 0.7) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: missionCardEnter 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mission-group-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #ecf8ff;
+  letter-spacing: 0.45px;
+}
+.mission-group-desc {
+  font-size: 0.66rem;
+  line-height: 1.55;
+  color: #b7d6ea;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(151, 211, 255, 0.22);
+}
+.mission-group-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
 .mission-card {
   border: 1px solid rgba(154, 214, 255, 0.24);
   border-radius: 10px;
@@ -4259,6 +4289,16 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   .mission-board-xp { flex-direction: column; align-items: stretch; gap: 4px; }
   .mission-board-xp-label { min-width: 0; font-size: 0.6rem; }
   .mission-board-grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+  .mission-group {
+    padding: 8px;
+    gap: 6px;
+  }
+  .mission-group-title { font-size: 0.64rem; }
+  .mission-group-desc { font-size: 0.6rem; }
+  .mission-group-list {
     grid-template-columns: 1fr;
     gap: 7px;
   }
@@ -8164,48 +8204,114 @@ function initAproposEditor() {
       ]
     },
     missions: {
-      title: 'Missions hebdomadaires',
-      subtitle: 'Cycle de jeu reel entre support, terrain et progression.',
+      title: 'Missions classees par type',
+      subtitle: 'Deux categories de jeu: Journalieres/Farming et Epiques.',
       rank: 'RANG STRATEGE',
-      xpLabel: 'Cadence de mission',
-      progress: 68,
-      tip: 'Plan ideal: Lundi tri, Mercredi terrain, Vendredi debrief + progression.',
-      entries: [
+      xpLabel: 'Couverture des missions',
+      progress: 89,
+      tip: 'Journalieres pour la constance, Epiques pour l impact infrastructure.',
+      groups: [
         {
-          icon: '📥',
-          name: 'Lundi - Priorisation',
-          rarity: 'common',
-          desc: 'Tri des incidents critiques et resolution rapide des blocages utilisateurs.',
-          zone: 'Zone: Helpdesk',
-          status: 'done',
-          statusLabel: 'Bouclee'
+          title: 'Quetes Journalieres & Farming (Maintien en Condition Operationnelle)',
+          description: 'La routine indispensable qui prouve que tu sais maintenir un parc informatique en bonne sante au quotidien.',
+          entries: [
+            {
+              icon: '🧩',
+              name: 'Support N1 / N2',
+              rarity: 'common',
+              desc: 'Resolution d incidents a distance et sur site (crashs applicatifs, problemes reseaux, messagerie Outlook, logiciels metiers comme Sage).',
+              zone: 'Zone: Support utilisateurs',
+              status: 'active',
+              statusLabel: 'Journaliere'
+            },
+            {
+              icon: '💻',
+              name: 'Mastering de Postes',
+              rarity: 'rare',
+              desc: 'Preparation, configuration et deploiement de postes de travail de A a Z pour les clients.',
+              zone: 'Zone: Parc informatique',
+              status: 'active',
+              statusLabel: 'Farming'
+            },
+            {
+              icon: '🔧',
+              name: 'Upgrades Materiels',
+              rarity: 'rare',
+              desc: 'Remplacement de composants, clonage de disques (HDD vers SSD) pour booster les performances, et maintenance physique.',
+              zone: 'Zone: Atelier',
+              status: 'active',
+              statusLabel: 'Farming'
+            },
+            {
+              icon: '🎫',
+              name: 'Suivis ticket',
+              rarity: 'common',
+              desc: 'Suivis des demandes et problemes clients, notes sur GLPI, et mise a jour de l avancee.',
+              zone: 'Zone: GLPI',
+              status: 'active',
+              statusLabel: 'Journaliere'
+            },
+            {
+              icon: '🌐',
+              name: 'Reseau Basique',
+              rarity: 'rare',
+              desc: 'Configuration de routeurs, switchs, VPN et mise en place d enregistrements DNS (SPF).',
+              zone: 'Zone: Reseau',
+              status: 'active',
+              statusLabel: 'Journaliere'
+            }
+          ]
         },
         {
-          icon: '🛠️',
-          name: 'Mercredi - Terrain',
-          rarity: 'epic',
-          desc: 'Installation de materiel, verifications reseau et mise a jour documentaire.',
-          zone: 'Zone: On-site',
-          status: 'active',
-          statusLabel: 'Actif'
-        },
-        {
-          icon: '📈',
-          name: 'Vendredi - Debrief',
-          rarity: 'rare',
-          desc: 'Analyse des incidents de la semaine et capitalisation des bonnes pratiques.',
-          zone: 'Zone: Post-mortem',
-          status: 'active',
-          statusLabel: 'En cours'
-        },
-        {
-          icon: '🏆',
-          name: 'Boss final',
-          rarity: 'legendary',
-          desc: 'Atteindre un profil autonome en production IT et securite operationnelle.',
-          zone: 'Zone: Objectif long terme',
-          status: 'pending',
-          statusLabel: 'Verrouille'
+          title: 'Quetes Epiques (Projets Majeurs & Infrastructure)',
+          description: 'Les missions a fort impact, orientees architecture, migration et securite.',
+          entries: [
+            {
+              icon: '🖧',
+              name: 'Virtualisation & Serveurs',
+              rarity: 'epic',
+              desc: 'Installation de serveurs physiques (Lenovo, HPE) et deploiement de machines virtuelles via Hyper-V sous Windows Server 2029, 2022, 2025.',
+              zone: 'Zone: Datacenter',
+              status: 'pending',
+              statusLabel: 'Epique'
+            },
+            {
+              icon: '🏛️',
+              name: 'Administration Active Directory',
+              rarity: 'epic',
+              desc: 'Creation de domaines, gestion de roles (TSE, APP) et parametrage de strategies de groupe (GPO).',
+              zone: 'Zone: AD DS',
+              status: 'pending',
+              statusLabel: 'Epique'
+            },
+            {
+              icon: '☁️',
+              name: 'Migrations Cloud',
+              rarity: 'legendary',
+              desc: 'Pilotage de la bascule des messageries de l environnement IONOS vers Microsoft 365.',
+              zone: 'Zone: Cloud',
+              status: 'pending',
+              statusLabel: 'Epique'
+            },
+            {
+              icon: '🗄️',
+              name: 'Gestion du Stockage (NAS)',
+              rarity: 'epic',
+              desc: 'Configuration de A a Z (mise en place de RAID, upgrades RAM, gestion des droits et des partages d agence).',
+              zone: 'Zone: Stockage',
+              status: 'pending',
+              statusLabel: 'Epique'
+            },
+            {
+              icon: '🛡️',
+              name: 'Securite & Sauvegardes',
+              rarity: 'legendary',
+              desc: 'Creation de strategies de backup avec Veeam et MaSauvegarde, et deploiement de logiciels Anti-Virus (ESET Endpoint Security / Antivirus).',
+              zone: 'Zone: Defense',
+              status: 'pending',
+              statusLabel: 'Epique'
+            }
+          ]
         }
       ]
     }
@@ -8247,22 +8353,43 @@ function initAproposEditor() {
       xpFillEl.style.width = `${data.progress}%`;
     });
 
-    gridEl.innerHTML = data.entries.map((entry, idx) => `
-      <article class="mission-card" style="animation-delay:${idx * 50}ms;">
-        <div class="mission-card-head">
-          <div class="mission-card-name">
-            <span class="mission-card-icon" aria-hidden="true">${entry.icon}</span>
-            <span>${entry.name}</span>
+    function renderEntry(entry, idx) {
+      return `
+        <article class="mission-card" style="animation-delay:${idx * 50}ms;">
+          <div class="mission-card-head">
+            <div class="mission-card-name">
+              <span class="mission-card-icon" aria-hidden="true">${entry.icon}</span>
+              <span>${entry.name}</span>
+            </div>
+            <span class="mission-rarity ${getRarityClass(entry.rarity)}">${entry.rarity.toUpperCase()}</span>
           </div>
-          <span class="mission-rarity ${getRarityClass(entry.rarity)}">${entry.rarity.toUpperCase()}</span>
-        </div>
-        <p class="mission-card-desc">${entry.desc}</p>
-        <div class="mission-card-meta">
-          <span>${entry.zone}</span>
-          <span class="mission-status ${getStatusClass(entry.status)}">${entry.statusLabel}</span>
-        </div>
-      </article>
-    `).join('');
+          <p class="mission-card-desc">${entry.desc}</p>
+          <div class="mission-card-meta">
+            <span>${entry.zone}</span>
+            <span class="mission-status ${getStatusClass(entry.status)}">${entry.statusLabel}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    if (Array.isArray(data.groups) && data.groups.length) {
+      gridEl.innerHTML = data.groups.map((group, groupIndex) => {
+        const entries = Array.isArray(group.entries) ? group.entries : [];
+        return `
+          <section class="mission-group" style="animation-delay:${groupIndex * 60}ms;">
+            <h3 class="mission-group-title">${group.title || ''}</h3>
+            <p class="mission-group-desc">${group.description || ''}</p>
+            <div class="mission-group-list">
+              ${entries.map((entry, entryIndex) => renderEntry(entry, entryIndex)).join('')}
+            </div>
+          </section>
+        `;
+      }).join('');
+      return;
+    }
+
+    const entries = Array.isArray(data.entries) ? data.entries : [];
+    gridEl.innerHTML = entries.map((entry, idx) => renderEntry(entry, idx)).join('');
   }
 
   options.forEach(btn => {
