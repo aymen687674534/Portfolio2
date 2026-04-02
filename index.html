@@ -8181,65 +8181,77 @@ function initAproposEditor() {
   const boardData = {
     quetes: {
       title: 'Main Quest',
-      subtitle: 'Arc principal de progression academique et technique.',
+      subtitle: 'Format campagne tactique style Call Of: progression et level up.',
       rank: 'RANG ETUDIANT-SYS',
-      xpLabel: 'Progression de la Main Quest',
+      xpLabel: 'Progression Main Quest',
       progress: 81,
-      tip: 'Objectif: valider le BTS SIO puis lancer la Licence Informatique en alternance.',
-      entries: [
+      tip: 'Utilise les fleches du lobby pour changer de mode.',
+      groups: [
         {
-          icon: '🎓',
-          name: 'Niveau & Classe actuelle',
-          rarity: 'epic',
-          desc: 'Étudiant de 19 ans, actuellement sur la validation de mon BTS SIO (Solutions d\'Infrastructure, Systèmes et Réseaux). Je me spécialise dans le déploiement et le maintien de l\'infrastructure IT.',
-          zone: 'Zone: Formation SISR',
-          status: 'active',
-          statusLabel: 'En cours'
+          title: 'NARRATION PRINCIPALE',
+          description: 'Arc actuel et prochain level up.',
+          entries: [
+            {
+              icon: '🎓',
+              name: 'Niveau & Classe actuelle',
+              rarity: 'epic',
+              desc: 'Étudiant de 19 ans, actuellement sur la validation de mon BTS SIO (Solutions d\'Infrastructure, Systèmes et Réseaux). Je me spécialise dans le déploiement et le maintien de l\'infrastructure IT.',
+              zone: 'Zone: BTS SIO SISR',
+              status: 'active',
+              statusLabel: 'Main Quest'
+            },
+            {
+              icon: '🚀',
+              name: 'Prochain Level Up (Septembre)',
+              rarity: 'legendary',
+              desc: 'Début d\'un nouvel arc narratif avec l\'entrée en Licence Informatique à l\'ESGI Grenoble, toujours en alternance pour maximiser l\'XP sur le terrain.',
+              zone: 'Zone: ESGI Grenoble',
+              status: 'pending',
+              statusLabel: 'Prochain arc'
+            }
+          ]
         },
         {
-          icon: '🚀',
-          name: 'Prochain Level Up (Septembre)',
-          rarity: 'legendary',
-          desc: 'Début d\'un nouvel arc narratif avec l\'entrée en Licence Informatique à l\'ESGI Grenoble, toujours en alternance pour maximiser l\'XP sur le terrain.',
-          zone: 'Zone: ESGI Grenoble',
-          status: 'pending',
-          statusLabel: 'A venir'
-        },
-        {
-          icon: '🧠',
-          name: 'Arbre de compétences (Hard Skills)',
-          rarity: 'epic',
-          desc: 'Environnements : Windows Server 2022, Microsoft 365, Active Directory.',
-          zone: 'Zone: Infrastructure',
-          status: 'active',
-          statusLabel: 'Operationnel'
-        },
-        {
-          icon: '🖥️',
-          name: 'Virtualisation & Backups',
-          rarity: 'rare',
-          desc: 'Hyper-V, Veeam.',
-          zone: 'Zone: Virtualisation',
-          status: 'active',
-          statusLabel: 'Operationnel'
-        },
-        {
-          icon: '🌐',
-          name: 'Réseau & Matériel',
-          rarity: 'rare',
-          desc: 'Configuration NAS (RAID), Switchs, routeurs.',
-          zone: 'Zone: Reseau',
-          status: 'active',
-          statusLabel: 'Operationnel'
-        },
-        {
-          icon: '🛠️',
-          name: 'Outils',
-          rarity: 'common',
-          desc: 'Maîtrise des process ITSM via GLPI.',
-          zone: 'Zone: ITSM',
-          status: 'active',
-          statusLabel: 'Operationnel'
+          title: 'ARBRE DE COMPÉTENCES (HARD SKILLS)',
+          description: 'Spécialisation technique actuelle.',
+          entries: [
+            {
+              icon: '🏗️',
+              name: 'Environnements',
+              rarity: 'epic',
+              desc: 'Windows Server 2022, Microsoft 365, Active Directory.',
+              zone: 'Zone: Infrastructure',
+              status: 'active',
+              statusLabel: 'Opérationnel'
+            },
+            {
+              icon: '💾',
+              name: 'Virtualisation & Backups',
+              rarity: 'rare',
+              desc: 'Hyper-V, Veeam.',
+              zone: 'Zone: Virtualisation',
+              status: 'active',
+              statusLabel: 'Opérationnel'
+            },
+            {
+              icon: '🌐',
+              name: 'Réseau & Matériel',
+              rarity: 'rare',
+              desc: 'Configuration NAS (RAID), Switchs, routeurs.',
+              zone: 'Zone: Réseau',
+              status: 'active',
+              statusLabel: 'Opérationnel'
+            },
+            {
+              icon: '🧰',
+              name: 'Outils',
+              rarity: 'common',
+              desc: 'Maîtrise des process ITSM via GLPI.',
+              zone: 'Zone: ITSM',
+              status: 'active',
+              statusLabel: 'Opérationnel'
+            }
+          ]
         }
       ]
     },
