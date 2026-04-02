@@ -2985,12 +2985,34 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   letter-spacing: 0.8px;
   color: #e6f6ff;
   text-shadow: 0 0 9px rgba(120,206,255,0.45);
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+.parcours-rpg-title::after {
+  content: '';
+  position: absolute;
+  top: -35%;
+  bottom: -35%;
+  width: 28%;
+  left: -35%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.36) 50%, transparent 100%);
+  transform: skewX(-20deg);
+  animation: parcoursTitleSweep 5.2s linear infinite;
+  pointer-events: none;
+}
+@keyframes parcoursTitleSweep {
+  0% { left: -35%; }
+  45% { left: -35%; }
+  100% { left: 120%; }
 }
 .parcours-rpg-hint {
   color: #b4d8f1;
 }
 .parcours-rpg-map {
   position: relative;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
   flex: 1;
   margin: 12px;
   border: 1px solid rgba(177,218,246,0.52);
@@ -3000,7 +3022,14 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     radial-gradient(circle at 82% 9%, rgba(255,244,178,0.64) 0%, rgba(255,244,178,0) 24%),
     linear-gradient(180deg, #8bcff6 0%, #acdff8 32%, #6fbe7f 32%, #4d9760 100%);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 10px 26px rgba(4,11,22,0.35);
+  transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-origin: center center;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  will-change: transform;
   image-rendering: pixelated;
+}
+.parcours-rpg-map:hover {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 14px 28px rgba(4,11,22,0.48);
 }
 .parcours-rpg-map::before {
   content: '';
@@ -3044,6 +3073,53 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   inset: 0;
   pointer-events: none;
   z-index: 1;
+}
+.parcours-atmo {
+  position: absolute;
+  inset: -14% -8%;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    conic-gradient(from 20deg at 18% 72%, rgba(102,248,255,0.26), transparent 24%, rgba(255,255,255,0.16) 42%, transparent 58%),
+    conic-gradient(from 210deg at 84% 24%, rgba(167,186,255,0.26), transparent 36%, rgba(119,255,214,0.18) 54%, transparent 70%);
+  mix-blend-mode: screen;
+  filter: blur(10px) saturate(1.25);
+  opacity: 0.56;
+  animation: atmoDrift 18s linear infinite;
+}
+@keyframes atmoDrift {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-10px, 6px, 0) rotate(2deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+.parcours-fireflies {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.parcours-firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,252,214,0.95) 0%, rgba(167,236,255,0.85) 45%, rgba(167,236,255,0) 100%);
+  box-shadow: 0 0 8px rgba(165,236,255,0.8);
+  opacity: 0;
+  animation:
+    fireflyBlink calc(2.1s + (var(--s, 1) * 0.75s)) ease-in-out infinite,
+    fireflyFloat calc(5.6s + (var(--s, 1) * 0.9s)) ease-in-out infinite;
+  animation-delay: calc(var(--d, 0) * -1s);
+}
+@keyframes fireflyBlink {
+  0%, 100% { opacity: 0.14; }
+  50% { opacity: 0.95; }
+}
+@keyframes fireflyFloat {
+  0%, 100% { transform: translate(0, 0) scale(0.9); }
+  50% { transform: translate(6px, -5px) scale(1.08); }
 }
 .parcours-path polyline:first-child {
   stroke: rgba(87,61,37,0.72);
@@ -3282,6 +3358,38 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   0%, 100% { filter: drop-shadow(0 3px 0 rgba(8,14,22,0.5)) drop-shadow(0 0 6px rgba(125,205,255,0.35)); }
   50% { filter: drop-shadow(0 3px 0 rgba(8,14,22,0.5)) drop-shadow(0 0 10px rgba(125,205,255,0.55)); }
 }
+.parcours-arrival-burst {
+  position: absolute;
+  z-index: 6;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.15);
+  background: radial-gradient(circle, rgba(255,249,212,0.96) 0%, rgba(131,235,255,0.84) 40%, rgba(131,235,255,0) 76%);
+  box-shadow: 0 0 0 0 rgba(131,235,255,0.4);
+  opacity: 0;
+  pointer-events: none;
+}
+.parcours-arrival-burst.active {
+  animation: arrivalBurst 0.68s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes arrivalBurst {
+  0% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.15);
+    box-shadow: 0 0 0 0 rgba(131,235,255,0.42);
+  }
+  65% {
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(2.3);
+    box-shadow: 0 0 0 10px rgba(131,235,255,0.12);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3.15);
+    box-shadow: 0 0 0 18px rgba(131,235,255,0);
+  }
+}
 
 .parcours-node {
   position: absolute;
@@ -3346,6 +3454,14 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   color: #dfedff;
   min-height: 128px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 18px rgba(0,0,0,0.35);
+}
+.parcours-dialog.flash {
+  animation: dialogFlash 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes dialogFlash {
+  0% { transform: translateY(3px) scale(0.992); filter: brightness(1); }
+  55% { transform: translateY(0) scale(1.01); filter: brightness(1.08); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
 }
 .parcours-dialog-top {
   display: flex;
@@ -3416,7 +3532,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 
 @media (max-width: 768px) {
   .parcours-rpg-header { padding: 8px 10px; font-size: 0.68rem; }
-  .parcours-rpg-map { margin: 8px; }
+  .parcours-rpg-map { margin: 8px; transform: none; }
   .parcours-cloud { width: 42px; height: 16px; }
   .parcours-school, .parcours-office, .parcours-castle { width: 38px; height: 30px; }
   .parcours-tree { width: 12px; height: 20px; }
@@ -5002,6 +5118,17 @@ function getWindowContent(id) {
           <div class="parcours-rpg-map" role="group" aria-label="Carte de progression RPG">
             <div class="parcours-cloud" style="left: 9%; top: 7%; animation-duration: 10s;"></div>
             <div class="parcours-cloud" style="left: 58%; top: 12%; animation-duration: 12s;"></div>
+            <div class="parcours-atmo" aria-hidden="true"></div>
+            <div class="parcours-fireflies" aria-hidden="true">
+              <span class="parcours-firefly" style="--x: 10%; --y: 27%; --s: 1; --d: 0.4;"></span>
+              <span class="parcours-firefly" style="--x: 22%; --y: 19%; --s: 1.6; --d: 1.1;"></span>
+              <span class="parcours-firefly" style="--x: 39%; --y: 24%; --s: 0.9; --d: 2.2;"></span>
+              <span class="parcours-firefly" style="--x: 56%; --y: 16%; --s: 1.4; --d: 1.8;"></span>
+              <span class="parcours-firefly" style="--x: 72%; --y: 22%; --s: 1.2; --d: 0.7;"></span>
+              <span class="parcours-firefly" style="--x: 84%; --y: 32%; --s: 1.8; --d: 2.8;"></span>
+              <span class="parcours-firefly" style="--x: 29%; --y: 46%; --s: 1.1; --d: 3.2;"></span>
+              <span class="parcours-firefly" style="--x: 63%; --y: 44%; --s: 1.5; --d: 0.2;"></span>
+            </div>
 
             <div class="parcours-tree" style="left: 20%; top: 80%;"></div>
             <div class="parcours-tree" style="left: 27%; top: 74%;"></div>
@@ -5020,6 +5147,7 @@ function getWindowContent(id) {
             </svg>
 
             <div class="parcours-hero" id="parcoursHero" aria-hidden="true"></div>
+            <div class="parcours-arrival-burst" id="parcoursArrivalBurst" aria-hidden="true"></div>
 
             <button type="button" class="parcours-node rpg-node" data-step="bac" data-x="14" data-y="70" style="left:14%;top:70%;" aria-label="Jalon BAC">
               <div class="parcours-node-icon">🏫🇫🇷</div>
@@ -6687,7 +6815,9 @@ function initMonParcours() {
   const yearEl = root.querySelector('#parcoursDialogYear');
   const progressEl = root.querySelector('#parcoursProgressFill');
   const heroEl = root.querySelector('#parcoursHero');
+  const burstEl = root.querySelector('#parcoursArrivalBurst');
   const mapEl = root.querySelector('.parcours-rpg-map');
+  const dialogEl = root.querySelector('.parcours-dialog');
   const nodes = root.querySelectorAll('.rpg-node');
   const routeOrder = ['bac', 'bts', 'alternance', 'futur'];
   const nodeByStep = {};
@@ -6699,6 +6829,35 @@ function initMonParcours() {
   let isMoving = false;
   let pendingTarget = null;
   let typingTimer = null;
+  let parallaxRaf = null;
+
+  function setMapParallax(clientX, clientY) {
+    if (!mapEl) return;
+    const rect = mapEl.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const px = ((clientX - rect.left) / rect.width) - 0.5;
+    const py = ((clientY - rect.top) / rect.height) - 0.5;
+    const tiltY = Math.max(-4.8, Math.min(4.8, px * 9));
+    const tiltX = Math.max(-3.8, Math.min(3.8, -py * 8));
+    mapEl.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+    mapEl.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
+  }
+
+  function resetMapParallax() {
+    if (!mapEl) return;
+    mapEl.style.setProperty('--tilt-x', '0deg');
+    mapEl.style.setProperty('--tilt-y', '0deg');
+  }
+
+  function triggerArrivalBurst(stepKey) {
+    const node = nodeByStep[stepKey];
+    if (!node || !burstEl) return;
+    burstEl.style.left = `${node.dataset.x}%`;
+    burstEl.style.top = `${node.dataset.y}%`;
+    burstEl.classList.remove('active');
+    burstEl.offsetHeight;
+    burstEl.classList.add('active');
+  }
 
   function typeText(message) {
     if (!textEl) return;
@@ -6729,6 +6888,12 @@ function initMonParcours() {
     if (badgeEl) badgeEl.textContent = info.badge;
     if (yearEl) yearEl.textContent = info.year;
     if (progressEl) progressEl.style.width = info.progress + '%';
+    if (dialogEl) {
+      dialogEl.classList.remove('flash');
+      dialogEl.offsetHeight;
+      dialogEl.classList.add('flash');
+    }
+    triggerArrivalBurst(stepKey);
     typeText(info.text);
   }
 
@@ -6830,8 +6995,11 @@ function initMonParcours() {
       await animateHeroTo(segmentStep);
       currentStep = segmentStep;
       nodes.forEach(node => {
-        node.classList.toggle('active', node.dataset.step === currentStep);
+        const isSelected = node.dataset.step === currentStep;
+        node.classList.toggle('active', isSelected);
+        node.classList.toggle('current', isSelected);
       });
+      triggerArrivalBurst(currentStep);
     }
 
     isMoving = false;
@@ -6847,6 +7015,19 @@ function initMonParcours() {
   nodes.forEach(node => {
     node.addEventListener('click', () => goToStep(node.dataset.step));
   });
+
+  if (mapEl && window.matchMedia && window.matchMedia('(pointer:fine)').matches) {
+    mapEl.addEventListener('pointermove', e => {
+      if (parallaxRaf) cancelAnimationFrame(parallaxRaf);
+      parallaxRaf = requestAnimationFrame(() => {
+        setMapParallax(e.clientX, e.clientY);
+      });
+    });
+    mapEl.addEventListener('pointerleave', () => {
+      if (parallaxRaf) cancelAnimationFrame(parallaxRaf);
+      resetMapParallax();
+    });
+  }
 
   setHeroAtStep(currentStep, true);
   selectStep(currentStep);
