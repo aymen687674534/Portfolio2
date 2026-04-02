@@ -3011,8 +3011,6 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .parcours-rpg-map {
   position: relative;
-  --tilt-x: 0deg;
-  --tilt-y: 0deg;
   flex: 1;
   margin: 12px;
   border: 1px solid rgba(177,218,246,0.52);
@@ -3022,10 +3020,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     radial-gradient(circle at 82% 9%, rgba(255,244,178,0.64) 0%, rgba(255,244,178,0) 24%),
     linear-gradient(180deg, #8bcff6 0%, #acdff8 32%, #6fbe7f 32%, #4d9760 100%);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 10px 26px rgba(4,11,22,0.35);
-  transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  transform-origin: center center;
-  transition: transform 220ms ease, box-shadow 220ms ease;
-  will-change: transform;
+  transition: box-shadow 220ms ease;
   image-rendering: pixelated;
 }
 .parcours-rpg-map:hover {
@@ -6829,25 +6824,6 @@ function initMonParcours() {
   let isMoving = false;
   let pendingTarget = null;
   let typingTimer = null;
-  let parallaxRaf = null;
-
-  function setMapParallax(clientX, clientY) {
-    if (!mapEl) return;
-    const rect = mapEl.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    const px = ((clientX - rect.left) / rect.width) - 0.5;
-    const py = ((clientY - rect.top) / rect.height) - 0.5;
-    const tiltY = Math.max(-4.8, Math.min(4.8, px * 9));
-    const tiltX = Math.max(-3.8, Math.min(3.8, -py * 8));
-    mapEl.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
-    mapEl.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
-  }
-
-  function resetMapParallax() {
-    if (!mapEl) return;
-    mapEl.style.setProperty('--tilt-x', '0deg');
-    mapEl.style.setProperty('--tilt-y', '0deg');
-  }
 
   function triggerArrivalBurst(stepKey) {
     const node = nodeByStep[stepKey];
@@ -7015,19 +6991,6 @@ function initMonParcours() {
   nodes.forEach(node => {
     node.addEventListener('click', () => goToStep(node.dataset.step));
   });
-
-  if (mapEl && window.matchMedia && window.matchMedia('(pointer:fine)').matches) {
-    mapEl.addEventListener('pointermove', e => {
-      if (parallaxRaf) cancelAnimationFrame(parallaxRaf);
-      parallaxRaf = requestAnimationFrame(() => {
-        setMapParallax(e.clientX, e.clientY);
-      });
-    });
-    mapEl.addEventListener('pointerleave', () => {
-      if (parallaxRaf) cancelAnimationFrame(parallaxRaf);
-      resetMapParallax();
-    });
-  }
 
   setHeroAtStep(currentStep, true);
   selectStep(currentStep);
