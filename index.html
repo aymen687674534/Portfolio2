@@ -1226,29 +1226,33 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .mission-board-menu {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
 }
 .mission-board-option {
   width: 100%;
   border: 1px solid rgba(156, 225, 255, 0.24);
   border-radius: 10px;
-  padding: 10px;
+  padding: 14px;
   background:
     linear-gradient(180deg, rgba(9, 22, 40, 0.84), rgba(8, 19, 35, 0.9)),
     radial-gradient(circle at 80% -20%, rgba(152, 214, 255, 0.2), transparent 40%);
   color: #d2ecff;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   letter-spacing: 0.45px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 102px;
-  gap: 6px;
+  min-height: 0;
+  flex: 1;
+  gap: 8px;
   transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
 .mission-board-option:hover,
@@ -1269,7 +1273,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   50% { box-shadow: 0 0 18px rgba(255, 226, 141, 0.34); }
 }
 .mission-option-kicker {
-  font-size: 0.54rem;
+  font-size: 0.62rem;
   letter-spacing: 0.7px;
   color: #9ec5df;
   text-transform: uppercase;
@@ -1282,12 +1286,12 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.94rem;
+  font-size: 1.05rem;
   color: #f2fbff;
   text-align: left;
 }
 .mission-option-meta {
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   line-height: 1.45;
   color: #97bdd8;
 }
@@ -1613,6 +1617,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .mission-board-menu-screen {
   gap: 10px;
+  flex: 1;
 }
 .mission-board-menu-head {
   border: 1px solid rgba(151, 211, 255, 0.2);
@@ -4512,12 +4517,15 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     gap: 6px;
   }
   .mission-board-menu {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     gap: 6px;
+    flex: 1;
   }
   .mission-board-option {
-    min-height: 74px;
+    min-height: 0;
+    flex: 1;
     padding: 8px 7px;
     gap: 4px;
   }
@@ -5951,7 +5959,7 @@ function getWindowContent(id) {
 
                 <div class="mission-board-part-nav" aria-label="Navigation des parties">
                   <button type="button" class="mission-board-nav-btn" id="missionBoardPartPrevBtn" aria-label="Partie precedente">←</button>
-                  <div class="mission-board-nav-label" id="missionBoardPartLabel">1/1 • Partie</div>
+                  <div class="mission-board-nav-label" id="missionBoardPartLabel">1/1 • Argument</div>
                   <button type="button" class="mission-board-nav-btn" id="missionBoardPartNextBtn" aria-label="Partie suivante">→</button>
                 </div>
 
@@ -8831,29 +8839,37 @@ function initAproposEditor() {
     });
   }
 
-  function getBoardParts(boardKey) {
+  function getBoardArguments(boardKey) {
     const data = boardData[boardKey];
     if (!data) return [];
 
+    const flattenedArguments = [];
+
     if (Array.isArray(data.groups) && data.groups.length) {
-      return data.groups.map((group, index) => {
+      data.groups.forEach((group, index) => {
         const entries = Array.isArray(group.entries) ? group.entries : [];
-        return {
-          title: group.title || `Partie ${index + 1}`,
-          description: group.description || 'Aucun detail supplementaire.',
-          entries,
-          arguments: entries.map(entry => entry.name).filter(Boolean)
-        };
+        entries.forEach(entry => {
+          flattenedArguments.push({
+            chapter: group.title || `Partie ${index + 1}`,
+            chapterDesc: group.description || data.subtitle || '',
+            entry
+          });
+        });
       });
+
+      return flattenedArguments;
     }
 
     const entries = Array.isArray(data.entries) ? data.entries : [];
-    return entries.map((entry, index) => ({
-      title: entry.name || `Partie ${index + 1}`,
-      description: entry.desc || 'Aucun detail supplementaire.',
-      entries: [entry],
-      arguments: [entry.zone, entry.statusLabel ? `Etat: ${entry.statusLabel}` : ''].filter(Boolean)
-    }));
+    entries.forEach((entry, index) => {
+      flattenedArguments.push({
+        chapter: data.title || `Partie ${index + 1}`,
+        chapterDesc: data.subtitle || '',
+        entry
+      });
+    });
+
+    return flattenedArguments;
   }
 
   function renderEntry(entry, idx) {
@@ -8879,34 +8895,45 @@ function initAproposEditor() {
     const data = boardData[currentBoard];
     if (!data) return;
 
-    const parts = getBoardParts(currentBoard);
-    if (!parts.length) {
-      partLabelEl.textContent = '0/0 • Partie';
+    const boardArguments = getBoardArguments(currentBoard);
+    if (!boardArguments.length) {
+      partLabelEl.textContent = '0/0 • Argument';
       gridEl.innerHTML = `
         <section class="mission-group mission-part-card">
-          <h3 class="mission-group-title">Aucune partie disponible</h3>
+          <h3 class="mission-group-title">Aucun argument disponible</h3>
           <p class="mission-group-desc">Ajoute des donnees dans boardData pour remplir cette section.</p>
         </section>
       `;
       return;
     }
 
-    if (currentPartIndex >= parts.length || currentPartIndex < 0) {
+    if (currentPartIndex >= boardArguments.length || currentPartIndex < 0) {
       currentPartIndex = 0;
     }
 
-    const part = parts[currentPartIndex];
-    const argumentsList = Array.isArray(part.arguments) ? part.arguments : [];
-    partLabelEl.textContent = `${currentPartIndex + 1}/${parts.length} • ${part.title}`;
-    tipEl.textContent = `${data.tip} Partie ${currentPartIndex + 1}/${parts.length}.`;
+    const currentArgument = boardArguments[currentPartIndex];
+    const entry = currentArgument.entry || {
+      icon: '•',
+      name: 'Argument',
+      rarity: 'common',
+      desc: 'Aucun contenu disponible.',
+      zone: 'Zone: Inconnue',
+      status: 'active',
+      statusLabel: 'Info'
+    };
+    const chapter = currentArgument.chapter || getBoardName(currentBoard);
+    const chapterDesc = currentArgument.chapterDesc || '';
+
+    partLabelEl.textContent = `${currentPartIndex + 1}/${boardArguments.length} • Argument`;
+    tipEl.textContent = '→ Suivant  •  ← Retour  •  Clavier: fleches ou PageUp/PageDown  •  Home/Echap: menu';
 
     gridEl.innerHTML = `
       <section class="mission-group mission-part-card" style="animation-delay:0ms;">
-        <h3 class="mission-group-title">${part.title}</h3>
-        <p class="mission-group-desc">${part.description}</p>
-        ${argumentsList.length ? `<ul class="mission-argument-list">${argumentsList.map(arg => `<li class="mission-argument-item">${arg}</li>`).join('')}</ul>` : ''}
+        <h3 class="mission-group-title">${chapter}</h3>
+        <p class="mission-group-desc">Argument ${currentPartIndex + 1}: ${entry.name}</p>
+        ${chapterDesc ? `<p class="mission-group-desc">${chapterDesc}</p>` : ''}
         <div class="mission-group-list">
-          ${(Array.isArray(part.entries) ? part.entries : []).map((entry, idx) => renderEntry(entry, idx)).join('')}
+          ${renderEntry(entry, 0)}
         </div>
       </section>
     `;
@@ -8955,9 +8982,9 @@ function initAproposEditor() {
   }
 
   function goToRelativePart(step) {
-    const parts = getBoardParts(currentBoard);
-    if (!parts.length) return;
-    currentPartIndex = (currentPartIndex + step + parts.length) % parts.length;
+    const boardArguments = getBoardArguments(currentBoard);
+    if (!boardArguments.length) return;
+    currentPartIndex = (currentPartIndex + step + boardArguments.length) % boardArguments.length;
     renderCurrentPart();
   }
 
@@ -9054,12 +9081,12 @@ function initAproposEditor() {
     }
 
     if (!detailScreenEl.hidden) {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
         goToRelativePart(1);
         return;
       }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
         goToRelativePart(-1);
         return;
