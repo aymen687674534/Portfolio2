@@ -1203,7 +1203,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 10px;
+  padding: 12px;
   gap: 8px;
 }
 .mission-board-root::before {
@@ -1230,8 +1230,9 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   flex-direction: column;
   justify-content: space-between;
   gap: 12px;
-  flex: 1;
-  min-height: 0;
+  width: min(960px, 94%);
+  height: min(72vh, 500px);
+  min-height: 280px;
 }
 .mission-board-option {
   width: 100%;
@@ -1618,6 +1619,8 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .mission-board-menu-screen {
   gap: 10px;
   flex: 1;
+  align-items: center;
+  justify-content: center;
 }
 .mission-board-menu-head {
   border: 1px solid rgba(151, 211, 255, 0.2);
@@ -1640,6 +1643,11 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .mission-board-detail-screen {
   gap: 8px;
   flex: 1;
+}
+.mission-board-top-progress {
+  position: relative;
+  z-index: 2;
+  padding: 2px 0 4px;
 }
 .mission-board-detail-topbar {
   display: flex;
@@ -1667,9 +1675,15 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .mission-board-part-nav {
   display: grid;
-  grid-template-columns: 42px 1fr 42px;
+  grid-template-columns: 42px minmax(0, 1fr) auto 42px;
   gap: 8px;
   align-items: center;
+}
+.mission-board-menu-btn {
+  height: 42px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 0.64rem;
 }
 .mission-board-detail-topbar .mission-board-nav-label,
 .mission-board-part-nav .mission-board-nav-label {
@@ -1679,8 +1693,16 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   flex: 1;
   min-height: 0;
 }
+.mission-board-argument-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
 .mission-board-grid {
   display: block;
+  width: min(900px, 100%);
+  margin: 0 auto;
 }
 .mission-board-grid > .mission-group {
   margin-bottom: 0;
@@ -1838,7 +1860,6 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   transition: background 0.15s;
   border-radius: 0;
 }
-.tree-node-header:hover { background: rgba(255,255,255,0.06); }
 .tree-node-header.active {
   background: rgba(0,212,255,0.1);
   color: var(--primary);
@@ -4570,22 +4591,32 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   .mission-launch-kicker { font-size: 0.55rem; }
   .mission-launch-title { font-size: 0.78rem; }
   .mission-launch-status { font-size: 0.62rem; }
-  .mission-board-menu-screen { gap: 8px; }
+  .mission-board-top-progress { padding: 0; }
+  .mission-board-menu-screen {
+    gap: 8px;
+    align-items: stretch;
+    justify-content: center;
+  }
+  .mission-board-menu {
+    width: 100%;
+    height: 100%;
+    min-height: 240px;
+    gap: 8px;
+  }
   .mission-board-menu-head { padding: 8px; }
   .mission-board-menu-title { font-size: 0.66rem; }
   .mission-board-menu-subtitle { font-size: 0.6rem; }
-  .mission-board-detail-topbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
   .mission-board-home-btn {
-    width: 100%;
     border-radius: 8px;
-    font-size: 0.6rem;
-    padding: 6px 8px;
+    font-size: 0.58rem;
+    padding: 0 8px;
+    height: 32px;
+  }
+  .mission-board-menu-btn {
+    min-width: 56px;
   }
   .mission-board-part-nav {
-    grid-template-columns: 32px 1fr 32px;
+    grid-template-columns: 32px minmax(0, 1fr) auto 32px;
     gap: 6px;
   }
   .mission-argument-list {
@@ -5908,12 +5939,16 @@ function getWindowContent(id) {
               </div>
             </div>
 
-            <section class="mission-board-menu-screen" id="missionBoardMenuScreen" aria-label="Selection de mode" hidden>
-              <div class="mission-board-menu-head">
-                <div class="mission-board-menu-title">CHOISIS TON MODE</div>
-                <div class="mission-board-menu-subtitle">Selectionne une section pour lancer la campagne QUESTLINE.</div>
+            <div class="mission-board-top-progress" aria-label="Progression campagne">
+              <div class="mission-board-xp">
+                <div class="mission-board-xp-label" id="missionBoardXpLabel">Progression de campagne</div>
+                <div class="mission-board-xp-track">
+                  <div class="mission-board-xp-fill" id="missionBoardXpFill"></div>
+                </div>
               </div>
+            </div>
 
+            <section class="mission-board-menu-screen" id="missionBoardMenuScreen" aria-label="Selection de mode" hidden>
               <div class="mission-board-menu" aria-label="Modes de jeu Mission Board">
                 <button type="button" class="mission-board-option" data-board="quetes" aria-label="Option Quetes">
                   <span class="mission-option-kicker">MODE CAMPAGNE</span>
@@ -5931,40 +5966,18 @@ function getWindowContent(id) {
                   <span class="mission-option-meta">Journalieres, farming et quetes epiques</span>
                 </button>
               </div>
-
-              <div class="mission-board-tip">Clique un mode pour ouvrir la section, puis utilise les fleches pour avancer ou reculer.</div>
             </section>
 
             <section class="mission-board-detail-screen" id="missionBoardDetailScreen" aria-live="polite" hidden>
-              <div class="mission-board-detail-topbar">
-                <div class="mission-board-nav-label" id="missionBoardModeLabel">MODE • Quetes</div>
-                <button type="button" class="mission-board-home-btn" id="missionBoardHomeBtn" aria-label="Retour au menu">⌂ Home</button>
+              <div class="mission-board-panel mission-board-argument-panel">
+                <div class="mission-board-grid" id="missionBoardGrid"></div>
               </div>
 
-              <div class="mission-board-panel">
-                <div class="mission-board-panel-head">
-                  <div>
-                    <div class="mission-board-title" id="missionBoardTitle">Quetes principales</div>
-                    <div class="mission-board-subtitle" id="missionBoardSubtitle">Selectionnez un objectif et suivez la progression.</div>
-                  </div>
-                  <div class="mission-board-rank" id="missionBoardRank">RANG BRONZE</div>
-                </div>
-
-                <div class="mission-board-xp">
-                  <div class="mission-board-xp-label" id="missionBoardXpLabel">Progression de campagne</div>
-                  <div class="mission-board-xp-track">
-                    <div class="mission-board-xp-fill" id="missionBoardXpFill"></div>
-                  </div>
-                </div>
-
-                <div class="mission-board-part-nav" aria-label="Navigation des parties">
-                  <button type="button" class="mission-board-nav-btn" id="missionBoardPartPrevBtn" aria-label="Partie precedente">←</button>
-                  <div class="mission-board-nav-label" id="missionBoardPartLabel">1/1 • Argument</div>
-                  <button type="button" class="mission-board-nav-btn" id="missionBoardPartNextBtn" aria-label="Partie suivante">→</button>
-                </div>
-
-                <div class="mission-board-grid" id="missionBoardGrid"></div>
-                <div class="mission-board-tip" id="missionBoardTip">Conseil: utilisez les fleches pour parcourir les parties et arguments.</div>
+              <div class="mission-board-part-nav" aria-label="Navigation des arguments">
+                <button type="button" class="mission-board-nav-btn" id="missionBoardPartPrevBtn" aria-label="Argument precedent">←</button>
+                <div class="mission-board-nav-label" id="missionBoardPartLabel">1/1 • Argument</div>
+                <button type="button" class="mission-board-home-btn mission-board-menu-btn" id="missionBoardMenuBtn" aria-label="Retour menu">Menu</button>
+                <button type="button" class="mission-board-nav-btn" id="missionBoardPartNextBtn" aria-label="Argument suivant">→</button>
               </div>
             </section>
           </div>
@@ -8536,20 +8549,15 @@ function initAproposEditor() {
   const launchFillEl = win.querySelector('#missionLaunchFill');
   const menuScreenEl = win.querySelector('#missionBoardMenuScreen');
   const detailScreenEl = win.querySelector('#missionBoardDetailScreen');
-  const modeLabelEl = win.querySelector('#missionBoardModeLabel');
-  const homeBtn = win.querySelector('#missionBoardHomeBtn');
+  const menuBtn = win.querySelector('#missionBoardMenuBtn');
   const partPrevBtn = win.querySelector('#missionBoardPartPrevBtn');
   const partNextBtn = win.querySelector('#missionBoardPartNextBtn');
   const partLabelEl = win.querySelector('#missionBoardPartLabel');
-  const titleEl = win.querySelector('#missionBoardTitle');
-  const subtitleEl = win.querySelector('#missionBoardSubtitle');
-  const rankEl = win.querySelector('#missionBoardRank');
   const xpLabelEl = win.querySelector('#missionBoardXpLabel');
   const xpFillEl = win.querySelector('#missionBoardXpFill');
   const gridEl = win.querySelector('#missionBoardGrid');
-  const tipEl = win.querySelector('#missionBoardTip');
   const options = win.querySelectorAll('.mission-board-option');
-  if (!root || !launchEl || !launchStatusEl || !launchFillEl || !menuScreenEl || !detailScreenEl || !modeLabelEl || !homeBtn || !partPrevBtn || !partNextBtn || !partLabelEl || !titleEl || !subtitleEl || !rankEl || !xpLabelEl || !xpFillEl || !gridEl || !tipEl || !options.length) return;
+  if (!root || !launchEl || !launchStatusEl || !launchFillEl || !menuScreenEl || !detailScreenEl || !menuBtn || !partPrevBtn || !partNextBtn || !partLabelEl || !xpLabelEl || !xpFillEl || !gridEl || !options.length) return;
   if (root.dataset.initialized === '1') return;
   root.dataset.initialized = '1';
 
@@ -8793,7 +8801,7 @@ function initAproposEditor() {
   };
 
   let currentBoard = 'quetes';
-  let currentPartIndex = 0;
+  let currentArgumentIndex = 0;
   const launchTimers = [];
 
   function trackTimer(timer) {
@@ -8839,37 +8847,35 @@ function initAproposEditor() {
     });
   }
 
+  function updateProgressBar(boardKey) {
+    const data = boardData[boardKey];
+    if (!data) return;
+    xpLabelEl.textContent = 'Progression de campagne';
+    xpFillEl.style.width = '0%';
+    requestAnimationFrame(() => {
+      xpFillEl.style.width = `${data.progress}%`;
+    });
+  }
+
   function getBoardArguments(boardKey) {
     const data = boardData[boardKey];
     if (!data) return [];
 
-    const flattenedArguments = [];
-
     if (Array.isArray(data.groups) && data.groups.length) {
-      data.groups.forEach((group, index) => {
+      return data.groups.flatMap((group, index) => {
         const entries = Array.isArray(group.entries) ? group.entries : [];
-        entries.forEach(entry => {
-          flattenedArguments.push({
-            chapter: group.title || `Partie ${index + 1}`,
-            chapterDesc: group.description || data.subtitle || '',
-            entry
-          });
-        });
+        return entries.map(entry => ({
+          chapter: group.title || `Partie ${index + 1}`,
+          entry
+        }));
       });
-
-      return flattenedArguments;
     }
 
     const entries = Array.isArray(data.entries) ? data.entries : [];
-    entries.forEach((entry, index) => {
-      flattenedArguments.push({
-        chapter: data.title || `Partie ${index + 1}`,
-        chapterDesc: data.subtitle || '',
-        entry
-      });
-    });
-
-    return flattenedArguments;
+    return entries.map((entry, index) => ({
+      chapter: data.title || `Partie ${index + 1}`,
+      entry
+    }));
   }
 
   function renderEntry(entry, idx) {
@@ -8891,10 +8897,7 @@ function initAproposEditor() {
     `;
   }
 
-  function renderCurrentPart() {
-    const data = boardData[currentBoard];
-    if (!data) return;
-
+  function renderCurrentArgument() {
     const boardArguments = getBoardArguments(currentBoard);
     if (!boardArguments.length) {
       partLabelEl.textContent = '0/0 • Argument';
@@ -8907,11 +8910,11 @@ function initAproposEditor() {
       return;
     }
 
-    if (currentPartIndex >= boardArguments.length || currentPartIndex < 0) {
-      currentPartIndex = 0;
+    if (currentArgumentIndex >= boardArguments.length || currentArgumentIndex < 0) {
+      currentArgumentIndex = 0;
     }
 
-    const currentArgument = boardArguments[currentPartIndex];
+    const currentArgument = boardArguments[currentArgumentIndex];
     const entry = currentArgument.entry || {
       icon: '•',
       name: 'Argument',
@@ -8922,16 +8925,11 @@ function initAproposEditor() {
       statusLabel: 'Info'
     };
     const chapter = currentArgument.chapter || getBoardName(currentBoard);
-    const chapterDesc = currentArgument.chapterDesc || '';
 
-    partLabelEl.textContent = `${currentPartIndex + 1}/${boardArguments.length} • Argument`;
-    tipEl.textContent = '→ Suivant  •  ← Retour  •  Clavier: fleches ou PageUp/PageDown  •  Home/Echap: menu';
-
+    partLabelEl.textContent = `${currentArgumentIndex + 1}/${boardArguments.length} • ${getBoardName(currentBoard)}`;
     gridEl.innerHTML = `
       <section class="mission-group mission-part-card" style="animation-delay:0ms;">
         <h3 class="mission-group-title">${chapter}</h3>
-        <p class="mission-group-desc">Argument ${currentPartIndex + 1}: ${entry.name}</p>
-        ${chapterDesc ? `<p class="mission-group-desc">${chapterDesc}</p>` : ''}
         <div class="mission-group-list">
           ${renderEntry(entry, 0)}
         </div>
@@ -8939,34 +8937,20 @@ function initAproposEditor() {
     `;
   }
 
-  function renderBoard(boardKey, optionsState = {}) {
-    const data = boardData[boardKey];
-    if (!data) return;
-
+  function renderBoard(boardKey) {
+    if (!boardData[boardKey]) return;
     currentBoard = boardKey;
-    if (!optionsState.keepPart) {
-      currentPartIndex = 0;
-    }
-
-    modeLabelEl.textContent = `MODE • ${getBoardName(boardKey)}`;
+    currentArgumentIndex = 0;
     setMenuSelection(boardKey);
-    titleEl.textContent = data.title;
-    subtitleEl.textContent = data.subtitle;
-    rankEl.textContent = data.rank;
-    xpLabelEl.textContent = data.xpLabel;
-
-    xpFillEl.style.width = '0%';
-    requestAnimationFrame(() => {
-      xpFillEl.style.width = `${data.progress}%`;
-    });
-
-    renderCurrentPart();
+    updateProgressBar(boardKey);
+    renderCurrentArgument();
   }
 
   function showMenu() {
     detailScreenEl.hidden = true;
     menuScreenEl.hidden = false;
     setMenuSelection(currentBoard);
+    updateProgressBar(currentBoard);
     const activeOption = Array.from(options).find(btn => btn.dataset.board === currentBoard) || options[0];
     if (activeOption) activeOption.focus();
   }
@@ -8981,11 +8965,11 @@ function initAproposEditor() {
     }, 10);
   }
 
-  function goToRelativePart(step) {
+  function goToRelativeArgument(step) {
     const boardArguments = getBoardArguments(currentBoard);
     if (!boardArguments.length) return;
-    currentPartIndex = (currentPartIndex + step + boardArguments.length) % boardArguments.length;
-    renderCurrentPart();
+    currentArgumentIndex = (currentArgumentIndex + step + boardArguments.length) % boardArguments.length;
+    renderCurrentArgument();
   }
 
   function moveMenuSelection(step) {
@@ -8994,6 +8978,7 @@ function initAproposEditor() {
     const nextBoard = boardOrder[(currentIndex + step + boardOrder.length) % boardOrder.length];
     currentBoard = nextBoard;
     setMenuSelection(nextBoard);
+    updateProgressBar(nextBoard);
     const nextBtn = Array.from(options).find(btn => btn.dataset.board === nextBoard);
     if (nextBtn) nextBtn.focus();
   }
@@ -9018,6 +9003,7 @@ function initAproposEditor() {
     launchFillEl.classList.remove('active');
     menuScreenEl.hidden = true;
     detailScreenEl.hidden = true;
+    updateProgressBar(currentBoard);
     launchStatusEl.textContent = 'Initialisation des modules tactiques...';
 
     requestAnimationFrame(() => {
@@ -9051,9 +9037,9 @@ function initAproposEditor() {
     });
   });
 
-  partPrevBtn.addEventListener('click', () => goToRelativePart(-1));
-  partNextBtn.addEventListener('click', () => goToRelativePart(1));
-  homeBtn.addEventListener('click', () => showMenu());
+  partPrevBtn.addEventListener('click', () => goToRelativeArgument(-1));
+  partNextBtn.addEventListener('click', () => goToRelativeArgument(1));
+  menuBtn.addEventListener('click', () => showMenu());
 
   root.addEventListener('keydown', e => {
     if (!launchEl.hasAttribute('hidden')) {
@@ -9083,15 +9069,15 @@ function initAproposEditor() {
     if (!detailScreenEl.hidden) {
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
-        goToRelativePart(1);
+        goToRelativeArgument(1);
         return;
       }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
-        goToRelativePart(-1);
+        goToRelativeArgument(-1);
         return;
       }
-      if (e.key === 'Home' || e.key === 'Escape' || e.key.toLowerCase() === 'h') {
+      if (e.key === 'Home' || e.key === 'Escape' || e.key.toLowerCase() === 'm') {
         e.preventDefault();
         showMenu();
       }
@@ -9099,12 +9085,12 @@ function initAproposEditor() {
     }
 
     if (!menuScreenEl.hidden) {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         e.preventDefault();
         moveMenuSelection(1);
         return;
       }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
         e.preventDefault();
         moveMenuSelection(-1);
         return;
