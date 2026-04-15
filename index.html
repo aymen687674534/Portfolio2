@@ -1220,6 +1220,15 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     linear-gradient(180deg, rgba(135, 223, 255, 0.08), transparent 30%),
     repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 20px);
 }
+.mission-board-root [hidden] {
+  display: none !important;
+}
+.mission-board-root.in-mode .mission-board-menu-screen {
+  display: none !important;
+}
+.mission-board-root:not(.in-mode) .mission-board-detail-screen {
+  display: none !important;
+}
 .mission-board-lobby {
   position: relative;
   z-index: 1;
@@ -1707,12 +1716,14 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .mission-board-grid {
   display: block;
-  width: min(900px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 .mission-full-view {
   width: 100%;
   min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1763,7 +1774,9 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 }
 .mission-photo-zone {
   margin-top: auto;
-  min-height: clamp(180px, 32vh, 280px);
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: clamp(240px, 48vh, 520px);
   border: 1px dashed rgba(169, 224, 255, 0.4);
   border-radius: 12px;
   background:
@@ -4712,7 +4725,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   .mission-full-subtext { font-size: 0.66rem; }
   .mission-full-chip { font-size: 0.55rem; padding: 3px 8px; }
   .mission-photo-zone {
-    min-height: 130px;
+    min-height: 42vh;
     padding: 12px;
   }
   .mission-photo-placeholder { font-size: 0.66rem; }
@@ -9043,22 +9056,13 @@ function initAproposEditor() {
     const chapterDesc = currentArgument.chapterDesc || '';
     const entryTitle = entry.name || 'Argument';
     const entryDesc = entry.desc || 'Aucun contenu disponible.';
-    const entryZone = entry.zone || 'Zone: Inconnue';
-    const entryStatus = entry.statusLabel || 'Info';
-    const entryRarity = String(entry.rarity || 'common').toUpperCase();
 
-    partLabelEl.textContent = `${currentArgumentIndex + 1}/${boardArguments.length} • ${modeName}`;
+    partLabelEl.textContent = `${currentArgumentIndex + 1}/${boardArguments.length} • Argument`;
     gridEl.innerHTML = `
       <section class="mission-full-view" style="animation-delay:0ms;">
-        <div class="mission-full-kicker">${modeName} • ${chapter}</div>
         <h2 class="mission-full-title">${entryTitle}</h2>
         <p class="mission-full-text">${entryDesc}</p>
-        <div class="mission-full-meta">
-          <span class="mission-full-chip">${entryZone}</span>
-          <span class="mission-full-chip">${entryStatus}</span>
-          <span class="mission-full-chip">${entryRarity}</span>
-        </div>
-        ${chapterDesc ? `<p class="mission-full-text mission-full-subtext">${chapterDesc}</p>` : ''}
+        ${chapterDesc ? `<p class="mission-full-text mission-full-subtext">${chapter} — ${chapterDesc}</p>` : `<p class="mission-full-text mission-full-subtext">${chapter}</p>`}
         <div class="mission-photo-zone">
           <div class="mission-photo-placeholder">
             <strong>Zone image ${currentArgumentIndex + 1}</strong>
@@ -9079,8 +9083,11 @@ function initAproposEditor() {
   }
 
   function showMenu() {
+    root.classList.remove('in-mode');
     detailScreenEl.hidden = true;
+    detailScreenEl.setAttribute('hidden', '');
     menuScreenEl.hidden = false;
+    menuScreenEl.removeAttribute('hidden');
     setMenuSelection(currentBoard);
     updateProgressBar(currentBoard);
     const activeOption = Array.from(options).find(btn => btn.dataset.board === currentBoard) || options[0];
@@ -9089,8 +9096,11 @@ function initAproposEditor() {
 
   function openBoard(boardKey) {
     if (!boardData[boardKey]) return;
+    root.classList.add('in-mode');
     menuScreenEl.hidden = true;
+    menuScreenEl.setAttribute('hidden', '');
     detailScreenEl.hidden = false;
+    detailScreenEl.removeAttribute('hidden');
     renderBoard(boardKey);
     setTimeout(() => {
       if (root.isConnected) root.focus();
@@ -9133,8 +9143,11 @@ function initAproposEditor() {
     launchEl.removeAttribute('hidden');
     launchEl.classList.remove('hidden');
     launchFillEl.classList.remove('active');
+    root.classList.remove('in-mode');
     menuScreenEl.hidden = true;
+    menuScreenEl.setAttribute('hidden', '');
     detailScreenEl.hidden = true;
+    detailScreenEl.setAttribute('hidden', '');
     updateProgressBar(currentBoard);
     launchStatusEl.textContent = 'Initialisation des modules tactiques...';
 
