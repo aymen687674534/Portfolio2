@@ -675,7 +675,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,212,255,0.1);
 }
 .os-window.minimized {
-  transform: scale(0.1) translateY(100vh);
+  transform: translateY(calc(100vh + 64px)) scale(0.1);
   opacity:0;
   pointer-events:none;
   transition: transform 0.35s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.25s ease;
