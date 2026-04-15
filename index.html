@@ -3,21 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- BTS: Modifie cette description pour changer le texte affiché dans Google et les aperçus de lien. -->
 <meta name="description" content="Portfolio interactif d'Aymen Louraghi — Étudiant BTS SIO SISR passionné par les réseaux et la cybersécurité.">
+<!-- BTS: Cette couleur influence la barre du navigateur sur mobile (Android surtout). -->
 <meta name="theme-color" content="#0a0e27">
+<!-- BTS: Mets ton nom ici si tu veux personnaliser l'auteur du site. -->
 <meta name="author" content="Aymen Louraghi">
+<!-- BTS: Ce titre apparaît dans l'onglet du navigateur. -->
 <title>Aymen Louraghi — Portfolio OS</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/*
+  GUIDE VISUEL BTS (CSS)
+  - Couleur globale: variables dans :root (--primary, --bg-dark, etc.)
+  - Fond du bureau: #desktop
+  - Barre des taches: #taskbar
+  - Style fenetres: .os-window
+  - Responsive mobile: media queries en bas du CSS
+*/
 /* ============================================
    CSS VARIABLES & RESET
    ============================================ */
 :root {
+  /* BTS: Couleur d'accent principale du site (boutons, sélection, effets actifs). */
   --primary: #00d4ff;
+  /* BTS: Version plus foncée de la couleur d'accent (souvent utilisée au hover). */
   --primary-dark: #00a0c4;
+  /* BTS: Couleurs de fond globales du thème. */
   --bg-dark: #0a0e27;
   --bg-darker: #060918;
   --bg-card: rgba(15, 20, 50, 0.85);
@@ -32,11 +47,13 @@
   --accent-yellow: #ffc107;
   --accent-orange: #ff9800;
   --accent-purple: #bb86fc;
+  /* BTS: Police principale du portfolio (texte standard). */
   --border: rgba(255,255,255,0.08);
   --shadow: 0 8px 32px rgba(0,0,0,0.5);
   --radius: 12px;
   --radius-sm: 8px;
   --font: 'Inter', 'Segoe UI', sans-serif;
+  /* BTS: Police du style terminal/code. */
   --font-mono: 'JetBrains Mono', 'Consolas', monospace;
   --taskbar-h: 52px;
   --z-lock: 10000;
@@ -132,6 +149,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   z-index: var(--z-lock);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
+  /* BTS: Dégradé principal de l'écran verrouillé (modifie ces couleurs pour changer l'ambiance). */
   background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d1130 100%);
   transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.6s ease;
 }
@@ -243,6 +261,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
    ============================================ */
 #desktop {
   position: fixed; inset:0;
+  /* BTS: Fond principal du bureau. */
   background: linear-gradient(160deg, #0a0e27 0%, #0d1442 30%, #0a0e27 60%, #111640 100%);
   overflow: hidden;
 }
@@ -329,6 +348,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 #taskbar {
   position:fixed; bottom:0; left:0; right:0;
   height: var(--taskbar-h);
+  /* BTS: Couleur/transparence de la barre des tâches. */
   background: var(--bg-taskbar);
   backdrop-filter: blur(30px);
   border-top: 1px solid var(--border);
@@ -628,6 +648,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
    ============================================ */
 .os-window {
   position: absolute;
+  /* BTS: Taille mini d'une fenêtre. Augmente ici si tu veux éviter les fenêtres trop petites. */
   min-width: 400px;
   min-height: 300px;
   background: var(--bg-window);
@@ -4498,10 +4519,13 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 
 <!-- ========== LOCK SCREEN ========== -->
 <div id="lockScreen" role="dialog" aria-label="Écran de verrouillage">
+  <!-- BTS: Heure affichée sur l'écran de verrouillage (mise à jour automatiquement en JS). -->
   <div class="lock-time" id="lockTime">00:00</div>
   <div class="lock-date" id="lockDate">Chargement...</div>
   <div class="lock-profile">
+    <!-- BTS: Change la lettre pour afficher l'initiale voulue dans l'avatar rond. -->
     <div class="lock-avatar">A</div>
+    <!-- BTS: Change ici le nom affiché sur l'écran de verrouillage. -->
     <div class="lock-username">Aymen Louraghi</div>
   </div>
   <div class="lock-action">
@@ -4509,6 +4533,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
       <input type="password" class="lock-input" id="lockInput" placeholder="Mot de passe" autocomplete="off" aria-label="Mot de passe">
       <button class="lock-btn" id="unlockBtn">Déverrouiller →</button>
     </div>
+    <!-- BTS: L'indice est juste visuel. Le vrai mot de passe se change dans la fonction JS tryUnlock(). -->
     <div class="lock-hint">Indice : 1234</div>
   </div>
 </div>
@@ -4520,6 +4545,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 
   <!-- Desktop Icons -->
   <div class="desktop-icons">
+    <!-- BTS: Pour ajouter une nouvelle icône, duplique un bloc .desktop-icon, change data-window et le label. -->
     <div class="desktop-icon" data-window="accueil" ondblclick="openWindow('accueil')">
       <div class="desktop-icon-img">🌐</div>
       <div class="desktop-icon-label">Accueil.html</div>
@@ -4577,6 +4603,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     <button class="taskbar-btn start-btn" id="startBtn" onclick="toggleStartMenu()" title="Démarrer">⊞</button>
   </div>
   <div class="taskbar-center" id="taskbarApps">
+    <!-- BTS: Les boutons ci-dessous ouvrent les fenêtres. Si tu renommes un titre, pense aussi au mapping JS updateTaskbar(). -->
     <button class="taskbar-btn" onclick="openWindow('accueil')" title="Accueil">🌐</button>
     <button class="taskbar-btn" onclick="openWindow('apropos')" title="À Propos">📝</button>
     <button class="taskbar-btn" onclick="openWindow('realisations')" title="Réalisations">📁</button>
@@ -4589,6 +4616,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     <button class="taskbar-btn" onclick="openWindow('synthese')" title="Synthèse E4">📊</button>
     <button class="taskbar-btn" onclick="openWindow('veille')" title="Veille">📡</button>
     <button class="taskbar-btn" onclick="openWindow('attestations')" title="Attestations">📜</button>
+    <!-- BTS: Supprime ce bouton si tu ne veux pas la démo "tentative d'intrusion". -->
     <button class="taskbar-btn" onclick="triggerIntrusionShowcase()" title="Tentative d'intrusion" style="color:var(--accent-green);">🧠</button>
   </div>
   <div class="taskbar-right">
@@ -4626,13 +4654,16 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   <div class="clock-zone" id="clockFlyoutZone">Fuseau horaire local</div>
 </div>
 
+<!-- BTS: Double-clic = reset des préférences sauvegardées (thème, accent, positions) puis rechargement de la page. -->
 <button id="resetLayoutBtn" ondblclick="resetPortfolioDefaultsAndReload()" title="Double-clic pour reset affichage">↺</button>
 
 <!-- ========== START MENU ========== -->
 <div id="startMenu">
+  <!-- BTS: Placeholder de recherche du menu Démarrer (texte visible par l'utilisateur). -->
   <input type="text" class="start-search" placeholder="🔍 Rechercher dans le portfolio..." id="startSearch" autocomplete="off">
   <div class="start-section-title">APPLICATIONS</div>
   <div class="start-apps" id="startApps">
+    <!-- BTS: Pour ajouter une app dans le menu Démarrer, duplique un bloc .start-app et change l'id de fenêtre dans openWindow('...'). -->
     <div class="start-app" onclick="openWindow('accueil'); toggleStartMenu();">
       <div class="start-app-icon">🌐</div>
       <div class="start-app-label">Accueil</div>
@@ -4822,9 +4853,45 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
      JAVASCRIPT
      ============================================================ -->
 <script>
+/*
+  ===========================
+  GUIDE RAPIDE MODIFICATIONS BTS
+  ===========================
+  1) Changer le mot de passe de l'ecran verrouille:
+    -> fonction tryUnlock(), condition: if (pwd === '1234')
+
+  2) Changer nom / texte d'accueil / tags:
+    -> getWindowContent('accueil')
+
+  3) Changer les competences affichees:
+    -> tableau projects[]
+
+  4) Changer l'arborescence Scolarite et les fichiers:
+    -> objet scolariteData
+
+  5) Changer les projets E4 / Synthese:
+    -> tableau projetsData[] et competencesE4
+
+  6) Changer email destinataire + liens contact:
+    -> template getWindowContent('contact')
+    -> fetch FormSubmit dans handleContactSubmit()
+
+  7) Changer commandes terminal:
+    -> objet commands dans processCommand()
+
+  8) Changer couleurs globales:
+    -> variables CSS :root + ACCENT_COLORS
+
+  9) Changer positions icones bureau:
+    -> DEFAULT_GRID_POSITIONS dans initDesktopIcons()
+
+  10) Desactiver la sequence "tentative d'intrusion":
+    -> retirer le bouton qui appelle triggerIntrusionShowcase()
+*/
 // ============================
 // STATE
 // ============================
+// BTS: Etat global de l'application (fenêtres, volume, historique terminal, etc.).
 const state = {
   windows: {},
   windowOrder: [],
@@ -4845,6 +4912,7 @@ const state = {
 // ============================
 // LOCAL STORAGE PERSISTENCE
 // ============================
+// BTS: Clés localStorage. Si tu les renommes, les anciennes préférences ne seront plus relues.
 const LS_KEYS = {
   WALLPAPER: 'portfolio_wallpaper',
   ACCENT: 'portfolio_accent',
@@ -4854,6 +4922,7 @@ const LS_KEYS = {
 
 function lsGet(key, fallback = null) {
   try {
+    // BTS: Lit une valeur sauvegardée (fond d'écran, couleur, etc.).
     const val = localStorage.getItem(key);
     return val !== null ? JSON.parse(val) : fallback;
   } catch { return fallback; }
@@ -4864,6 +4933,7 @@ function lsSet(key, value) {
 }
 
 function resetPortfolioDefaultsAndReload() {
+  // BTS: Liste des préférences à effacer quand tu veux revenir à l'état "propre".
   const keysToClear = [
     LS_KEYS.WALLPAPER,
     LS_KEYS.ACCENT,
@@ -4887,6 +4957,7 @@ const WALLPAPER_NAMES = {
 
 function setWallpaper(name) {
   const desktop = document.getElementById('desktop');
+  // BTS: Cette ligne enlève les anciens thèmes pour ne garder qu'un seul fond actif.
   desktop.className = desktop.className.replace(/\bwallpaper-\S+/g, '').trim();
   if (name !== 'default') {
     desktop.classList.add('wallpaper-' + name);
@@ -4897,6 +4968,7 @@ function setWallpaper(name) {
 }
 
 function loadWallpaper() {
+  // BTS: Charge automatiquement le dernier fond choisi au rechargement de la page.
   const saved = lsGet(LS_KEYS.WALLPAPER, 'default');
   if (saved !== 'default') {
     document.getElementById('desktop').classList.add('wallpaper-' + saved);
@@ -4928,6 +5000,7 @@ const ACCENT_COLORS = {
 function setAccentColor(name) {
   const colors = ACCENT_COLORS[name];
   if (!colors) return;
+  // BTS: Change en direct les variables CSS => impact visuel immédiat sur toute l'UI.
   document.documentElement.style.setProperty('--primary', colors.primary);
   document.documentElement.style.setProperty('--primary-dark', colors.dark);
   lsSet(LS_KEYS.ACCENT, name);
@@ -4936,6 +5009,7 @@ function setAccentColor(name) {
 }
 
 function loadAccentColor() {
+  // BTS: Recharge la couleur d'accent sauvegardée pour garder le même style entre deux sessions.
   const saved = lsGet(LS_KEYS.ACCENT, 'cyan');
   const colors = ACCENT_COLORS[saved];
   if (colors) {
@@ -5007,6 +5081,7 @@ function updateClocks() {
   const now = new Date();
   const h = String(now.getHours()).padStart(2,'0');
   const m = String(now.getMinutes()).padStart(2,'0');
+  // BTS: Format affiché HH:MM. Si tu veux les secondes, modifie cette zone + les éléments cibles.
   const timeStr = `${h}:${m}`;
   const options = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
   const dateStr = now.toLocaleDateString('fr-FR', options);
@@ -5045,6 +5120,7 @@ const FAKE_NETWORKS = [
 ];
 
 function closeAllFlyouts() {
+  // BTS: Ferme tous les panneaux rapides (réseau/son/horloge).
   ['networkFlyout', 'soundFlyout', 'clockFlyout'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('open');
@@ -5094,6 +5170,7 @@ function updateSoundUI() {
   const slider = document.getElementById('volumeSlider');
   if (!soundBtn || !soundFlyoutIcon || !volumePercent || !muteToggleBtn || !slider) return;
 
+  // BTS: Cette logique change l'icône en fonction du volume et du mode muet.
   const icon = state.muted || state.volume === 0
     ? '🔇'
     : state.volume < 40
@@ -5111,6 +5188,7 @@ function renderNetworkList() {
   const status = document.getElementById('networkStatus');
   if (!list || !status) return;
 
+  // BTS: Génère visuellement la liste des réseaux simulés.
   list.innerHTML = FAKE_NETWORKS.map(net => {
     const isConnected = state.connectedNetwork === net.name;
     return `
@@ -5212,16 +5290,19 @@ function initTaskbarQuickSettings() {
 function tryUnlock() {
   const input = document.getElementById('lockInput');
   const pwd = input.value;
+  // BTS: Mot de passe de déverrouillage à changer ici.
   if (pwd === '1234') {
     input.style.border = '';
     document.getElementById('lockScreen').classList.add('unlocked');
     setTimeout(() => {
       showNotification('👋 Bienvenue, Aymen !', 'Double-cliquez sur les icônes ou utilisez la barre des tâches.');
     }, 1000);
+    // BTS: Fenêtre ouverte automatiquement après connexion réussie.
     setTimeout(() => {
       openWindow('accueil');
     }, 1400);
   } else {
+    // BTS: Comportement en cas d'erreur (message + animation secousse).
     input.value = '';
     input.style.border = '1px solid var(--accent-red)';
     input.placeholder = 'Mot de passe incorrect';
@@ -5556,6 +5637,7 @@ function showNotification(title, text, duration = 4000) {
 // WINDOW TEMPLATES
 // ============================
 function getWindowContent(id) {
+  // BTS: Chaque entrée ci-dessous représente une fenêtre de l'OS (titre, taille, HTML affiché).
   const templates = {
     accueil: {
       title: 'Accueil.html — Navigateur',
@@ -5569,6 +5651,7 @@ function getWindowContent(id) {
           <input class="browser-url" value="https://aymen-louraghi.dev/accueil" readonly>
         </div>
         <div class="accueil-content">
+          <!-- BTS: Texte d'accroche principal de la page d'accueil. -->
           <div class="accueil-greeting">// BIENVENUE SUR MON PORTFOLIO</div>
           <h1 class="accueil-title">
             Passionné par les <span class="highlight">Réseaux</span><br>
@@ -5578,6 +5661,7 @@ function getWindowContent(id) {
             <span class="prompt">aymen@portfolio:~$</span> <span id="typedText"></span><span class="cursor"></span>
           </div>
           <div class="accueil-tags">
+            <!-- BTS: Tags rapides à personnaliser selon ton profil. -->
             <span class="accueil-tag">🎓 BTS SIO SISR</span>
             <span class="accueil-tag">🏢 Alternance Konvergence</span>
             <span class="accueil-tag">🔒 Cybersécurité</span>
@@ -5592,6 +5676,7 @@ function getWindowContent(id) {
       icon: '📝',
       width: 780, height: 550,
       content: `
+        <!-- BTS: Cette fenêtre affiche ton profil "gamifié". Le contenu détaillé se modifie surtout dans initAproposEditor(). -->
         <div class="apropos-game-shell">
           <div class="apropos-game-hud" aria-hidden="true">
             <div class="apropos-hud-title">MISSION BOARD // BTS SIO SISR</div>
@@ -5661,6 +5746,7 @@ function getWindowContent(id) {
         <div class="explorer-content">
           <div class="explorer-files" id="explorerFiles">
             <div style="grid-column:1/-1;font-size:0.7rem;color:var(--text-muted);font-weight:600;letter-spacing:0.5px;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:4px;">🧠 COMPÉTENCES</div>
+            <!-- BTS: Liste visuelle des compétences. Les vrais détails (description/tags) sont dans le tableau JS projects[]. -->
             <div class="file-item" data-project-index="0" onclick="selectProject(this, 0)">
               <div class="file-icon">🌐</div>
               <div class="file-name">Cisco / Réseau</div>
@@ -5714,6 +5800,7 @@ function getWindowContent(id) {
       icon: '🎓',
       width: 900, height: 600,
       content: `
+        <!-- BTS: Arborescence scolaire alimentée par l'objet JS scolariteData. -->
         <div class="scolaire-container">
           <div class="scolaire-tree" id="scolariteTree"></div>
           <div class="scolaire-main">
@@ -5831,6 +5918,7 @@ function getWindowContent(id) {
       icon: '📂',
       width: 880, height: 600,
       content: `
+        <!-- BTS: Onglets filtrés automatiquement depuis projetsData (ecole/entreprise/perso). -->
         <div class="projets-container">
           <div class="projets-tabs">
             <button class="projets-tab active" onclick="switchProjetTab(this, 'all')">📋 Tout <span class="projets-tab-count" id="countAll">0</span></button>
@@ -5852,6 +5940,7 @@ function getWindowContent(id) {
       icon: '📨',
       width: 780, height: 540,
       content: `
+        <!-- BTS: Adresse affichée ici côté UI. Si tu la changes, pense aussi à la route fetch FormSubmit plus bas. -->
         <div class="mail-container" style="position:relative;">
           <div class="mail-sidebar-left">
             <div class="mail-sidebar-header">📧 Mail</div>
@@ -5893,6 +5982,7 @@ function getWindowContent(id) {
                 </div>
                 <div class="mail-field-row">
                   <span class="mail-field-label">À :</span>
+                  <!-- BTS: Adresse destinataire affichée dans le formulaire. -->
                   <span class="mail-field-static">aymen.louraghi38@gmail.com</span>
                 </div>
                 <div class="mail-field-row">
@@ -5922,6 +6012,7 @@ function getWindowContent(id) {
       icon: '⬛',
       width: 680, height: 440,
       content: `
+        <!-- BTS: Terminal interactif. Les commandes se modifient dans processCommand(). -->
         <div class="terminal-container">
           <div class="terminal-header-bar">
             <div class="terminal-tab-item active">PowerShell</div>
@@ -6087,6 +6178,7 @@ function getWindowContent(id) {
 // PROJECT DATA
 // ============================
 const projects = [
+  // BTS: Ce tableau pilote la fenêtre "Réalisations" (icône, titre, description, tags, niveau).
   // ── COMPÉTENCES ──
   {
     icon: '🌐', title: 'Cisco / Réseau',
@@ -6139,6 +6231,7 @@ const projects = [
 ];
 
 function selectProject(el, index) {
+  // BTS: Quand tu cliques une compétence, cette fonction injecte ses détails dans le panneau de droite.
   document.querySelectorAll('.file-item').forEach(f => f.classList.remove('selected'));
   el.classList.add('selected');
   const p = projects[index];
@@ -6155,6 +6248,7 @@ function selectProject(el, index) {
 // SCOLARITÉ - FILE EXPLORER TREE
 // ============================
 const scolariteData = {
+  // BTS: Arborescence complète de "Scolarité". Ajoute dossiers/fichiers ici pour les voir dans l'explorateur.
   id: 'root',
   name: 'Scolarité',
   icon: '🎓',
@@ -6171,6 +6265,7 @@ const scolariteData = {
           name: 'ASSISTANCE WINDOWS.pdf',
           icon: '📝',
           type: 'file',
+          // BTS: fileUrl = chemin du document à ouvrir. Garde un chemin valide vers docs/...
           fileUrl: 'docs/scolarite/ASSISTANCE WINDOWS.pdf',
           meta: ['Type : PDF (.pdf)', 'Contexte : Scolarité'],
           desc: 'Document de support et assistance Windows.',
@@ -6470,10 +6565,16 @@ function openDocViewer(fileUrl, icon = '📄', fileName = '') {
 let docViewerCounter = 0;
 
 function openDocumentViewer(fileItem) {
+  // BTS: Ouvre un document dans une nouvelle fenêtre interne de l'OS (PDF/ODT/DOC). 
   const existingDocWin = Object.entries(state.windows)
     .find(([, win]) => win.dataset && win.dataset.fileUrl === fileItem.fileUrl);
   if (existingDocWin) {
     const [existingWinId] = existingDocWin;
+    const existingWin = getWindowElement(existingWinId);
+    if (existingWin) {
+      clearWindowClosingState(existingWin);
+      existingWin.classList.remove('minimized');
+    }
     focusWindow(existingWinId);
     return;
   }
@@ -6738,6 +6839,7 @@ function downloadDoc(url, name) {
 // ============================
 // Référentiel des compétences E4 (bloc "Support et mise à disposition de services informatiques")
 const competencesE4 = {
+  // BTS: Dictionnaire code -> libelle. Utilise ces codes dans projetsData[].competences
   'C1': 'Gérer le patrimoine informatique',
   'C2': 'Répondre aux incidents et aux demandes d\'assistance et d\'évolution',
   'C3': 'Développer la présence en ligne de l\'organisation',
@@ -6747,6 +6849,7 @@ const competencesE4 = {
 };
 
 const projetsData = [
+  // BTS: Tableau principal de la fenêtre "Projets" et du tableau "Synthèse E4".
   // ─── 🎓 ÉCOLE ───
   {
     icon: '🌐', title: 'Configuration Réseau Cisco',
@@ -7005,6 +7108,7 @@ function handleContactSubmit(e) {
   const subject = document.getElementById('contactSubject').value;
   const message = document.getElementById('contactMessage').value;
 
+  // BTS: Destination réelle du formulaire. Modifie cette adresse pour changer le destinataire.
   fetch('https://formsubmit.co/ajax/aymen.louraghi38@gmail.com', {
     method: 'POST',
     headers: {
@@ -7277,6 +7381,7 @@ function showComposeView() {
       <button class="mail-toolbar-btn" onclick="resetContactForm()">🗑️ Supprimer</button>
       <div style="flex:1;"></div>
       <div class="contact-links" style="margin:0;gap:6px;">
+        <!-- BTS: Mets ton mail et ton profil LinkedIn ici (liens visibles en haut de la fenêtre contact). -->
         <a class="contact-link" href="mailto:aymen.louraghi38@gmail.com" style="padding:5px 10px;font-size:0.7rem;">
           <span class="contact-link-icon" style="font-size:0.85rem;">📧</span> Email
         </a>
@@ -7293,6 +7398,7 @@ function showComposeView() {
         </div>
         <div class="mail-field-row">
           <span class="mail-field-label">À :</span>
+          <!-- BTS: Même adresse que ci-dessus, dans la vue "Nouveau message" régénérée. -->
           <span class="mail-field-static">aymen.louraghi38@gmail.com</span>
         </div>
         <div class="mail-field-row">
@@ -7391,6 +7497,7 @@ function initCvViewer() {
 // TABLEAU DE SYNTHÈSE E4
 // ============================
 function initSynthese() {
+  // BTS: Cette fonction construit automatiquement le tableau "Synthèse E4" depuis projetsData.
   const tbody = document.getElementById('syntheseBody');
   if (!tbody) return;
   const contextLabels = { ecole: '🎓 École', entreprise: '🏢 Entreprise', perso: '🏠 Personnel' };
@@ -7419,6 +7526,7 @@ function initMonParcours() {
   root.dataset.initialized = '1';
 
   const points = {
+    // BTS: Texte narratif "Mon parcours". Modifie title/year/text pour raconter ton propre chemin.
     bac: {
       title: 'BAC - Le lycee au drapeau francais',
       badge: 'Quete accomplie',
@@ -7727,7 +7835,23 @@ function unregisterWindow(id, win) {
   if (id) state.windowOrder = state.windowOrder.filter(w => w !== id);
 }
 
+function clearWindowClosingState(win) {
+  if (!win) return;
+  if (win._closeTimer) {
+    clearTimeout(win._closeTimer);
+    win._closeTimer = null;
+  }
+  if (win._closeAnimationHandler) {
+    win.removeEventListener('animationend', win._closeAnimationHandler);
+    win._closeAnimationHandler = null;
+  }
+  delete win.dataset.closing;
+  win.classList.remove('closing');
+  win.style.pointerEvents = '';
+}
+
 function openWindow(id) {
+  // BTS: Point d'entrée pour ouvrir une fenêtre par son identifiant (accueil, projets, contact...).
   // Cleanup stale state reference
   if (state.windows[id] && !state.windows[id].isConnected) {
     delete state.windows[id];
@@ -7737,11 +7861,9 @@ function openWindow(id) {
   // If already open, focus it
   if (getWindowElement(id)) {
     const win = getWindowElement(id);
+    clearWindowClosingState(win);
     if (win.classList.contains('minimized')) {
       win.classList.remove('minimized');
-    }
-    if (win.classList.contains('closing')) {
-      win.classList.remove('closing');
     }
     focusWindow(id);
     return;
@@ -7811,6 +7933,7 @@ function openWindow(id) {
 }
 
 function closeWindow(id) {
+  // BTS: Ferme proprement une fenêtre avec animation + nettoyage du state.
   const win = getWindowElement(id);
   if (!win) return;
 
@@ -7821,15 +7944,22 @@ function closeWindow(id) {
   win.classList.add('closing');
 
   const finalize = () => {
+    if (win.dataset.closing !== '1') return;
+    clearWindowClosingState(win);
     unregisterWindow(id, win);
     updateTaskbar();
   };
 
-  const timer = setTimeout(finalize, 320);
-  win.addEventListener('animationend', () => {
-    clearTimeout(timer);
+  win._closeTimer = setTimeout(finalize, 320);
+  win._closeAnimationHandler = () => {
+    if (win.dataset.closing !== '1') return;
+    if (win._closeTimer) {
+      clearTimeout(win._closeTimer);
+      win._closeTimer = null;
+    }
     finalize();
-  }, { once: true });
+  };
+  win.addEventListener('animationend', win._closeAnimationHandler, { once: true });
 }
 
 function minimizeWindow(id) {
@@ -7878,6 +8008,7 @@ function focusWindow(id) {
 }
 
 function updateTaskbar() {
+  // BTS: Synchronise les boutons de la taskbar avec les fenêtres réellement ouvertes.
   // Update active states on taskbar buttons
   document.querySelectorAll('#taskbarApps .taskbar-btn').forEach(btn => {
     btn.classList.remove('active');
@@ -8179,6 +8310,7 @@ function initAproposEditor() {
 
   const boardOrder = ['quetes', 'guilde', 'missions'];
   const boardData = {
+    // BTS: Tout le contenu de la fenêtre "À propos" version jeu se modifie ici (titres, cartes, descriptions).
     quetes: {
       title: 'Main Quest',
       subtitle: 'Format campagne tactique style Call Of: progression et level up.',
@@ -8607,6 +8739,7 @@ function processCommand(cmd) {
   }
 
   const commands = {
+    // BTS: Ajoute une nouvelle commande ici: nomCommande: () => "HTML de réponse".
     help: () => {
       return `<div class="t-info">═══════════════════════════════════</div>
 <div class="t-info">  Commandes disponibles :</div>
@@ -8740,6 +8873,7 @@ function processCommand(cmd) {
   // Handle 'open <window>' command
   else if (cmd.startsWith('open ')) {
     const target = cmd.split(' ')[1];
+    // BTS: Liste blanche des fenêtres autorisées depuis la commande terminal "open ...".
     const validWindows = ['accueil', 'apropos', 'realisations', 'projets', 'scolarite', 'contact', 'terminal'];
     if (validWindows.includes(target)) {
       output.innerHTML += `<div class="t-result">Ouverture de ${target}...</div>`;
@@ -8778,6 +8912,7 @@ function escapeHtml(str) {
 // TENTATIVE D'INTRUSION — LIVE MODE
 // ============================
 function triggerIntrusionShowcase() {
+  // BTS: Démo visuelle "faux hack". Tu peux réduire les effets en retirant les étapes/timeout ci-dessous.
   if (state.selfDestructActive) return;
   state.selfDestructActive = true;
 
@@ -8964,8 +9099,10 @@ function triggerSelfDestruct() {
   const GRID_W = 100, GRID_H = 100;
   const container = document.querySelector('.desktop-icons');
   const icons = document.querySelectorAll('.desktop-icon');
+  // BTS: Clé localStorage des positions d'icônes. Supprime-la pour remettre les icônes par défaut.
   const STORAGE_KEY = 'desktopIconPositions';
   const DEFAULT_GRID_POSITIONS = {
+    // BTS: Position initiale des icônes sur le bureau: [colonne, ligne].
     accueil: [0, 0],
     apropos: [0, 1],
     realisations: [0, 2],
@@ -9027,6 +9164,7 @@ function triggerSelfDestruct() {
   function posKey(icon) { return icon.dataset.window; }
 
   function savePositions() {
+    // BTS: Sauvegarde la position des icônes après déplacement.
     const data = {};
     icons.forEach(icon => {
       data[posKey(icon)] = { x: parseInt(icon.style.left), y: parseInt(icon.style.top) };
@@ -9102,6 +9240,7 @@ function triggerSelfDestruct() {
   }
 
   function restoreOrLayout() {
+    // BTS: Recharge les positions sauvegardées, sinon place les icônes au layout par défaut.
     const saved = loadPositions();
     if (saved) {
       restoreSafe(saved);
@@ -9210,6 +9349,7 @@ document.addEventListener('keydown', e => {
     if (focused) closeWindow(focused[0]);
   }
   // Ctrl+Shift+T = open terminal
+  // BTS: Raccourci clavier utile pendant la démo.
   if (e.key === 'T' && e.ctrlKey && e.shiftKey) {
     e.preventDefault();
     openWindow('terminal');
@@ -9219,6 +9359,8 @@ document.addEventListener('keydown', e => {
 // ============================
 // INITIALIZE LOCALSTORAGE
 // ============================
+// BTS: Ordre d'initialisation au chargement de la page.
+// BTS: Tu peux commenter une ligne pour désactiver une fonctionnalité pendant un test (ex: loadAccentColor()).
 loadWallpaper();
 loadAccentColor();
 loadSentEmails();
