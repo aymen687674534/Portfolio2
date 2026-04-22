@@ -1713,12 +1713,14 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   justify-content: center;
   padding: 12px;
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 .mission-board-grid {
   display: block;
   width: 100%;
   height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 .mission-full-view {
   width: 100%;
@@ -1734,6 +1736,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
     linear-gradient(180deg, rgba(9, 23, 43, 0.86), rgba(7, 16, 31, 0.88));
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 24px rgba(0,0,0,0.3);
   padding: clamp(14px, 2vw, 22px);
+  overflow: hidden;
 }
 .mission-full-kicker {
   font-family: var(--font-mono);
@@ -1786,6 +1789,7 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow: hidden;
 }
 .mission-photo-placeholder {
   text-align: center;
@@ -1814,6 +1818,8 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
 .mission-photo-frame,
 .mission-photo-image,
 .mission-photo-canvas {
+  width: 100%;
+  height: 100%;
   min-height: 0;
   border-radius: 10px;
 }
@@ -1827,16 +1833,16 @@ button:focus-visible, input:focus-visible { outline-offset: 0; }
   display: block;
   border: 1px solid rgba(167, 220, 255, 0.35);
   background: rgba(8, 18, 34, 0.9);
+  object-fit: cover;
+  object-position: center center;
 }
 .mission-photo-image {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  justify-self: center;
-  align-self: center;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  justify-self: stretch;
+  align-self: stretch;
+  object-fit: cover;
   object-position: center center;
   image-rendering: auto;
 }
