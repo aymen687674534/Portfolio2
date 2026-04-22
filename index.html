@@ -9053,9 +9053,17 @@ function initAproposEditor() {
     if (!Array.isArray(files) || !folder) return null;
     const fileName = files[argumentIndex];
     if (!fileName) return null;
+
+    const rawUrl = `docs/${folder}/${fileName}`;
+    const encodedUrl = `docs/${folder}/${encodeURIComponent(fileName)}`;
+    const dotRawUrl = `./docs/${folder}/${fileName}`;
+    const dotEncodedUrl = `./docs/${folder}/${encodeURIComponent(fileName)}`;
+    const fallbackChain = [encodedUrl, dotRawUrl, dotEncodedUrl].filter(url => url !== rawUrl);
+
     return {
       fileName,
-      fileUrl: `docs/${folder}/${encodeURIComponent(fileName)}`
+      fileUrl: rawUrl,
+      fallbackChain
     };
   }
 
@@ -9169,6 +9177,26 @@ function initAproposEditor() {
     });
   }
 
+  function hydrateMissionImageFallbacks() {
+    const imageSlots = root.querySelectorAll('.mission-photo-image[data-fallback-chain]:not([data-fallback-bound="1"])');
+    imageSlots.forEach(imageEl => {
+      imageEl.dataset.fallbackBound = '1';
+      imageEl.addEventListener('error', () => {
+        const queue = (imageEl.dataset.fallbackChain || '').split(';;').filter(Boolean);
+        const nextUrl = queue.shift();
+        if (nextUrl) {
+          imageEl.dataset.fallbackChain = queue.join(';;');
+          imageEl.src = nextUrl;
+          return;
+        }
+
+        const mediaEl = imageEl.closest('.mission-photo-media');
+        if (!mediaEl) return;
+        mediaEl.innerHTML = '<div class="mission-photo-error">Image indisponible pour cette partie.</div>';
+      });
+    });
+  }
+
   function renderMissionPhotoZone(boardKey, argumentIndex) {
     const media = getBoardMediaFile(boardKey, argumentIndex);
     if (!media) {
@@ -9186,7 +9214,7 @@ function initAproposEditor() {
     if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'avif'].includes(extension)) {
       return `
         <figure class="mission-photo-media">
-          <img class="mission-photo-image" src="${media.fileUrl}" alt="Illustration ${boardName} ${argumentIndex + 1}" loading="lazy">
+          <img class="mission-photo-image" src="${media.fileUrl}" data-fallback-chain="${media.fallbackChain.join(';;')}" alt="Illustration ${boardName} ${argumentIndex + 1}" loading="eager" decoding="async">
           <figcaption class="mission-photo-caption">${boardName} • Page ${argumentIndex + 1}</figcaption>
         </figure>
       `;
@@ -9313,6 +9341,7 @@ function initAproposEditor() {
 
     requestAnimationFrame(() => {
       if (!root.isConnected) return;
+      hydrateMissionImageFallbacks();
       hydrateMissionPhotoPreviews();
     });
   }
